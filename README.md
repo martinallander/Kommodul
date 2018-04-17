@@ -1,2 +1,1 @@
-# Kommodul
-Kommodul, projektkurs TSEA56
+Dummy
