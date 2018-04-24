@@ -1,11 +1,11 @@
 class Sensor_Data:
-    def __init__(self, acceleromter, gyrometer, ir, tof):
-        self.acceleromter = acceleromter
-        self.gyrometer = gyrometer
+    def __init__(self, acc, gyro, ir, tof):
+        self.acc = acc
+        self.gyro = gyro
         self.ir = ir
         self.tof = tof
     def __str__(self):
-        return "Gyrometer values: " + str(self.gyrometer) + "\n Acceleromter values: " + str(self.acceleromter) +   "\n IR values: " + self.ir_str() +"\n ToF distance: " + str(self.tof) 
+        return "Gyrometer values: " + str(self.gyro) + "\n Acceleromter values: " + str(self.accel) +   "\n IR values: " + self.ir_str() +"\n ToF distance: " + str(self.tof) 
     def ir_str(self):
     	formatted_ir = ""
     	for i in range(len(self.ir)):

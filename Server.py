@@ -46,7 +46,6 @@ def main():
 	i = 0
 	while i < 1000:
 		sd = Sensor_Data([i, i+1 , i+2], [1.0, 2.0, 3.0], ir, 10.0)
-		print(sd)
 		client_sock.send(pickle.dumps(sd))
 		#close_sender(send_sock)
 		data = client_sock.recv(1024)
