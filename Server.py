@@ -6,10 +6,7 @@ from Sensor_Data import Sensor_Data
 #Device adress found using finddevice.py
 ma_bd_addr = "98:5F:D3:35:FC:EA"
 
-ir = range(1,64)
-
-
-sd = Sensor_Data([1.0, 2.0, 3.0], [1.0, 2.0, 3.0], ir, 10.0)
+ir = range(0,64)
 
 def open_rec_server(server_sock, port):
     server_sock.bind(("",port))
@@ -33,12 +30,11 @@ def close_sender(sock):
 	sock.close()
 
 def main():
-	sd = Sensor_Data([0, 1 , 2], [1.0, 2.0, 3.0], ir, 10.0)
-	print(sd)
 	send_sock = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
 	server_sock_rec=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
 
 	open_rec_server(server_sock_rec,5)
+	commands = list()
 
 	#connect_to_server(send_sock, ma_bd_addr, 6)
 	listen_to_server(server_sock_rec)
@@ -49,9 +45,10 @@ def main():
 		client_sock.send(pickle.dumps(sd))
 		#close_sender(send_sock)
 		data = client_sock.recv(1024)
-		print(data)
+		commands.append(data)
 		i += 1
 	close_reciever(client_sock, server_sock_rec)
+	print(commands)
 
 main()
 
