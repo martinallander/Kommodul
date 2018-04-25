@@ -7,13 +7,13 @@ import RPi.GPIO as GPIO
 def init_sens_modul():
         sensmodul_spi = spidev.SpiDev()
         sensmodul_spi.open(0, 0)
-        sensmodul_spi.max_speed_hz = 2000000
+        sensmodul_spi.max_speed_hz = 10000
         return sensmodul_spi
     
 def init_styr_modul():
         styrmodul_spi = spidev.SpiDev()
         styrmodul_spi.open(0, 1)
-        styrmodul_spi.max_speed_hz = 2000000
+        styrmodul_spi.max_speed_hz = 10000
         return styrmodul_spi
 
 print('Please wait.. \n .... \n ......... \n')
@@ -58,28 +58,35 @@ def request_ALL(spi_buss):
 
 def check_ACK(spi_buss):
         #while True:
-                ack = spi_buss.readbytes(1)[0]
+                ack = spi_buss.readbytes(1)
                 print(ack)
-                if ack == 0x11:
+                ###
+                if ack[0] == 0x11:
                         return True
                 else:
                         return False
-
-def read_data(spi_buss, length):
+def read_data(spi_buss, length, ls):
         i = 0
         while i < length:
-                print(spi_buss.readbytes(1)[0])
+                ls.append(spi_buss.readbytes(1)[0])
                 i += 1
-    
+        return ls
+
 def main():
         gpio_setup()
         sensmodul = init_sens_modul()
         set_mode(sensmodul, 0b00)
-        request_IR(sensmodul)
-       # request_IR(sensmodul)
-        if (check_ACK(sensmodul)):
-                length = spi_buss.readbytes(1)[0]
-                read_data(sensmodul, length)
+        shit = list()
+        while True:
+                shit[:] = []
+                request_ALL(sensmodul)
+        #for i in range(0,14):
+         #       print(sensmodul.readbytes(1))
+        #request_ALL(sensmodul)
+                if (check_ACK(sensmodul)):
+                        length = sensmodul.readbytes(1)[0]
+                        print(length)
+                        print(read_data(sensmodul, 255, shit))
         sensmodul.close()
 
 main()
