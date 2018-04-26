@@ -3,7 +3,8 @@ import time
 
 
 #Device adress found using finddevice.py
-bd_addr = "98:5F:D3:35:FC:EA"
+#bd_addr = "98:5F:D3:35:FC:EA"
+bd_addr = "43:43:A1:12:1F:AC"
 
 #Make sure port is same in server and client, ports 1-30
 port = 6
