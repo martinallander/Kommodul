@@ -5,12 +5,12 @@ import RPi.GPIO as GPIO				#Framework for att kunma koppla GPIO-pinnarna till ev
 
 sensmodul_spi = spidev.SpiDev()			#Initiera SPI for sensormodulen
 sensmodul_spi.open(0, 0)			#Lat sensormodulen styras av CS0 enligt kopplingschemat
-sensmodul_spi.max_speed_hz = 2000000		#Satt max-overforingsfrekvens till 2000000Hz, fungerar bra vi denna hastighet
+sensmodul_spi.max_speed_hz = 100000		#Satt max-overforingsfrekvens till 2000000Hz, fungerar bra vi denna hastighet
     
 
 styrmodul_spi = spidev.SpiDev()			#Initiera SPI for Styrmodulen
 styrmodul_spi.open(0, 1)			#Styrmodulen styrs av CS1 enligt kopplingschemat
-styrmodul_spi.max_speed_hz = 2000000
+styrmodul_spi.max_speed_hz = 100000
 
 to_send = [0x01, 0x02, 0x03]			#Godtycklig lista for Bytes att skicka vid olika tester
 
@@ -36,10 +36,12 @@ def write_styrmodul(input):			#Godtycklig write-funktion, anvander ej denna for 
     styrmodul_spi.xfer([msb, lsb])
     
 def test_data_sens():				#Testfunktion for sensormodulen (CS0)
-	sensmodul_spi.writebytes([0xAA])	#Forst skrivs 0xAA over SPI-bussen. Handskakning: Ingen skiftning sker alltsa, inget sparas.
+	sensmodul_spi.writebytes([0x01])	#Forst skrivs 0xAA over SPI-bussen. Handskakning: Ingen skiftning sker alltsa, inget sparas.
 	resp = sensmodul_spi.readbytes(1)	#En ytterligare SPI-overforing sker, nu sparas det som skickas fran slaven. totalt 1B
-	if (resp[0] == 0x01):
+	if (resp[0] == 0x10):
 		print('success')		#Om forvantat varde aterges vid lasning printas "success" annars "fail"
+	elif (resp[0] == 0x11):
+                                print('success')
 	else:
 		print('fail ')
 		print(resp)
