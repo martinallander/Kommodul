@@ -41,20 +41,24 @@ def read_sensor_init(spi_buss):
                 return length
         return 0
 
-def request_ACC(spi_buss):
-        spi_buss.writebytes([0x01])
 
-def request_GYRO(spi_buss):
+#define DATA_ERROR 0x10
+
+def request_ALL(spi_buss):
+        spi_buss.writebytes([0x01])
+        
+def request_ACC(spi_buss):
         spi_buss.writebytes([0x02])
 
-def request_IR(spi_buss):
+def request_GYRO(spi_buss):
         spi_buss.writebytes([0x03])
 
 def request_DIST(spi_buss):
         spi_buss.writebytes([0x04])
 
-def request_ALL(spi_buss):
+def request_IR(spi_buss):
         spi_buss.writebytes([0x05])
+
 
 def check_ACK(spi_buss):
         #while True:

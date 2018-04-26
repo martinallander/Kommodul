@@ -1,0 +1,24 @@
+import time
+import keyboard
+import spidev
+
+def init_styr_modul():
+            styrmodul_spi = spidev.SpiDev()
+                    styrmodul_spi.open(0, 1)
+                            styrmodul_spi.max_speed_hz = 10000
+                                    return styrmodul_spi
+
+def main():
+    while True:
+        if keyboard.is_pressed('up'):
+            print("up")
+        elif keyboard.is_pressed('down'):
+            print("down")
+	elif keyboard.is_pressed('right'):
+		print('right')
+	elif keyboard.is_pressed('left'):
+		print('left')
+        time.sleep(0.01)
+
+main()
+
