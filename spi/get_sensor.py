@@ -63,12 +63,13 @@ def request_IR(spi_buss):
 def check_ACK(spi_buss):
         #while True:
                 ack = spi_buss.readbytes(1)
-                print(ack)
+                #print(ack)
                 ###
                 if ack[0] == 0x11:
                         return True
                 else:
                         return False
+
 def read_data(spi_buss, length, ls):
         i = 0
         while i < length:
@@ -76,6 +77,7 @@ def read_data(spi_buss, length, ls):
                 i += 1
         return ls
 
+                        
 def main():
         gpio_setup()
         sensmodul = init_sens_modul()
@@ -83,14 +85,12 @@ def main():
         shit = list()
         while True:
                 shit[:] = []
-                request_ALL(sensmodul)
+                request_GYRO(sensmodul)
         #for i in range(0,14):
          #       print(sensmodul.readbytes(1))
         #request_ALL(sensmodul)
                 if (check_ACK(sensmodul)):
-                        length = sensmodul.readbytes(1)[0]
-                        print(length)
-                        print(read_data(sensmodul, 255, shit))
+                        print(read_data(sensmodul, 20, shit))
         sensmodul.close()
 
 main()
