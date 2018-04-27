@@ -2,7 +2,7 @@ import spidev
 import time
 import struct
 import RPi.GPIO as GPIO
-
+import binascii
 
 def gpio_setup():
         GPIO.setmode(GPIO.BCM)
@@ -10,20 +10,17 @@ def gpio_setup():
 
 class SPI:
         def __init__(self, clk_speed):
-	gpio_setup()
                 self.sens = spidev.SpiDev()
                 self.sens.open(0, 0)
                 self.sens.max_speed_hz = clk_speed
-	self.styr = spidev.SpiDev()
+                self.styr = spidev.SpiDev()
                 self.styr.open(0, 1)
                 self.styr.max_speed_hz = clk_speed
-	set_mode(self.sens, 0b00)
-	set_mode(self.styr, 0b00)
+                self.sens.mode =  0b00
+                self.styr.mode =  0b00
                 self.length = 0
-
                 
-
-	def set_modes(self, module, mode_id):
+        def set_modes(self, module, mode_id):
         	module.mode = mode_id
 
         def request_sensor(self, sensor):
@@ -43,22 +40,46 @@ class SPI:
                         self.sens.writebytes([0x05])
                 else:
                         self.length = 0
+                        print("xD")
 
         def check_ACK(self):
-                ack = sens.readbytes(1)[0]
+                ack = self.sens.readbytes(1)[0]
+                print(ack)
                 if (ack == 0x11):
                         return True
                 else:
                         return False
 
         def bytes_to_float(self, four_bytes):
+                print(four_bytes)
+                b_ascii = binascii.hexlify(bytearray(four_bytes))
+                print(b_ascii)
+                f = struct.unpack('f', b_ascii.decode('hex') )[0]
+                print(f)
                 
-
         def read_sensor(self):
                 four_bytes = list()
                 i = 1
                 while i <= self.length:
-                        four_bytes.append(spi_buss.readbytes(1)[0])
+                        four_bytes.append(self.sens.readbytes(1)[0])
                         if i % 4 == 0:
-                                
-                        
+                                self.bytes_to_float(four_bytes)
+                                four_bytes[:] = []
+                        i += 1
+                self.length = 0
+
+        def read(self, sensor):
+                self.request_sensor(sensor)
+                if self.check_ACK():
+                        self.read_sensor()
+
+def main():
+        gpio_setup()
+        sp = SPI(10000)
+        while True:
+                sp.read("angle")
+                time.sleep(1)
+        sp.sens.close()
+        sp.styr.close()
+        
+main()

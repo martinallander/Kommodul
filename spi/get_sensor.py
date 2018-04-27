@@ -90,7 +90,7 @@ def main():
          #       print(sensmodul.readbytes(1))
         #request_ALL(sensmodul)
                 if (check_ACK(sensmodul)):
-                        print(read_data(sensmodul, 20, shit))
+                        print(read_data(sensmodul, 12, shit))
         sensmodul.close()
 
 main()
