@@ -44,7 +44,7 @@ class SPI:
 
         def check_ACK(self):
                 ack = self.sens.readbytes(1)[0]
-                print(ack)
+                #print(ack)
                 if (ack == 0x11):
                         return True
                 else:
@@ -52,8 +52,10 @@ class SPI:
 
         def bytes_to_float(self, four_bytes):
                 print(four_bytes)
+                #four_bytes = four_bytes[::-1]
+               # print(four_bytes)
                 b_ascii = binascii.hexlify(bytearray(four_bytes))
-                print(b_ascii)
+                #print(b_ascii)
                 f = struct.unpack('f', b_ascii.decode('hex') )[0]
                 print(f)
                 
@@ -76,9 +78,13 @@ class SPI:
 def main():
         gpio_setup()
         sp = SPI(10000)
+        #four_bytes = list()
         while True:
+                #sp.request_sensor("angle")
+                print("New angle:")
                 sp.read("angle")
-                time.sleep(1)
+                #sp.read_sensor()
+                time.sleep(5)
         sp.sens.close()
         sp.styr.close()
         
