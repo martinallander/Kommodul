@@ -56,16 +56,18 @@ class SPI:
                # print(four_bytes)
                 b_ascii = binascii.hexlify(bytearray(four_bytes))
                 #print(b_ascii)
-                f = struct.unpack('f', b_ascii.decode('hex') )[0]
+                f = struct.unpack('f', b_ascii.decode"hex" )[0]
                 print(f)
+                return f
                 
         def read_sensor(self):
+        		sensor_data = list()
                 four_bytes = list()
                 i = 1
                 while i <= self.length:
                         four_bytes.append(self.sens.readbytes(1)[0])
                         if i % 4 == 0:
-                                self.bytes_to_float(four_bytes)
+                                sensor_data.append(self.bytes_to_float(four_bytes))
                                 four_bytes[:] = []
                         i += 1
                 self.length = 0
@@ -74,6 +76,22 @@ class SPI:
                 self.request_sensor(sensor)
                 if self.check_ACK():
                         self.read_sensor()
+
+        def move(self, command):
+       			if command == "up":
+					styr.writebytes([0x01])
+					print("up")
+        		elif command == "down":
+					styr.writebytes([0x02])
+					print("down")
+				elif command == "left":
+					styr.writebytes([0x03])
+					print"left"
+				elif command == "right":
+					styr.writebytes([0x04])
+					print"right"
+			        time.sleep(0.01)
+
 
 def main():
         gpio_setup()
