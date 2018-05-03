@@ -82,16 +82,16 @@ class SPI:
 
         def move(self, command):
                 self.done = False
-                if command == "up":
+                if command == "forward":
                         self.styr.writebytes([0x01])
                         print("up")
-                elif command == "down":
+                elif command == "backward":
                         self.styr.writebytes([0x02])
                         print("down")
-                elif command == "left":
+                elif command == "rotleft":
                         self.styr.writebytes([0x03])
                         print"left"
-                elif command == "right":
+                elif command == "rotright":
                         self.styr.writebytes([0x04])
                         print"right"
                 self.done = True

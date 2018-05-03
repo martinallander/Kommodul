@@ -5,15 +5,15 @@ from SPI import SPI
 import rospy
 from std_msgs.msg import String
 
-move_commands = ["right", "left", "up", "down"]
+move_commands = ["rotright", "rotleft", "forward", "backward"]
 #global spi = SPI(10000)
 
 def callback(data, spi_node):
     rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
-    if data.data in move_commands:
-        spi_node.insert_styr_back(data.data)
+    if data.data.lower() in move_commands:
+        spi_node.insert_styr_back(data.data.lower())
     else:
-        spi_node.insert_sens_back(data.data)
+        spi_node.insert_sens_back(data.data.lower())
     print(data.data)
     spi_node.perform_action()
 
