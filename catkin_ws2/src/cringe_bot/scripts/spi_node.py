@@ -3,7 +3,9 @@
 
 from SPI import SPI
 import rospy
+import pickle
 from std_msgs.msg import String
+from cringe_bot.msg import Sensordata
 
 move_commands = ["rotright", "rotleft", "forward", "backward"]
 #global spi = SPI(10000)
@@ -20,9 +22,15 @@ def callback(data, spi_node):
 
 def listener(spi_node):
     rospy.init_node('spi_node', anonymous=True)
-    pub = rospy.Publisher('sensor_data', String, queue_size=100)
+    pub = rospy.Publisher('sensor', Sensordata, queue_size=1000)
     rospy.Subscriber('spi_commands', String, callback, spi_node)
     # spin() simply keeps python from exiting until this node is stopped
+    rate = rospy.Rate(10) # 10hz
+    sd = Sensordata(spi_node.spi.sd.acc, spi_node.spi.sd.gyro, spi_node.spi.sd.ir, spi_node.spi.sd.tof)
+    while not rospy.is_shutdown():
+        rospy.loginfo(sd)
+        pub.publish(sd)
+        rate.sleep()
     rospy.spin()
     spi_node.close()
 

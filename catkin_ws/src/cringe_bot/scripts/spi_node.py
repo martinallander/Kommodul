@@ -10,6 +10,7 @@ move_commands = ["rotright", "rotleft", "forward", "backward"]
 
 def callback(data, spi_node):
     rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
+    print(data.data)
     if data.data.lower() in move_commands:
         spi_node.insert_styr_back(data.data.lower())
     else:

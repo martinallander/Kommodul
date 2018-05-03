@@ -1,7 +1,11 @@
 class Sensor_Data:
     def __init__(self, has_data = True):
         self.has_data = has_data
-
+        self.acc = [0.0, 0.0, 0.0]
+        self.gyro = [0.0, 0.0, 0.0]
+        self.ir = [0.0] * 64
+        self.tof = 0.0
+        
     def set_acc(self, acc):
         self.acc = acc
 

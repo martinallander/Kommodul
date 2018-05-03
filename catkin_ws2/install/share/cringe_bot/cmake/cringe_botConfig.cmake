@@ -66,7 +66,7 @@ endif()
 set(cringe_bot_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
-if("TRUE" STREQUAL "TRUE")
+if("FALSE" STREQUAL "TRUE")
   set(cringe_bot_SOURCE_PREFIX /home/ubuntu/Kommodul/catkin_ws2/src/cringe_bot)
   set(cringe_bot_DEVEL_PREFIX /home/ubuntu/Kommodul/catkin_ws2/devel)
   set(cringe_bot_INSTALL_PREFIX "")
@@ -91,9 +91,9 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(cringe_bot_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT "/home/ubuntu/Kommodul/catkin_ws2/devel/include " STREQUAL " ")
+if(NOT " " STREQUAL " ")
   set(cringe_bot_INCLUDE_DIRS "")
-  set(_include_dirs "/home/ubuntu/Kommodul/catkin_ws2/devel/include")
+  set(_include_dirs "")
   if(NOT " " STREQUAL " ")
     set(_report "Check the issue tracker '' and consider creating a ticket if the problem has not been reported yet.")
   elseif(NOT " " STREQUAL " ")
@@ -110,7 +110,7 @@ if(NOT "/home/ubuntu/Kommodul/catkin_ws2/devel/include " STREQUAL " ")
         message(FATAL_ERROR "Project 'cringe_bot' specifies '${idir}' as an include dir, which is not found.  It does not exist in '${include}'.  ${_report}")
       endif()
     else()
-      message(FATAL_ERROR "Project 'cringe_bot' specifies '${idir}' as an include dir, which is not found.  It does neither exist as an absolute directory nor in '/home/ubuntu/Kommodul/catkin_ws2/src/cringe_bot/${idir}'.  ${_report}")
+      message(FATAL_ERROR "Project 'cringe_bot' specifies '${idir}' as an include dir, which is not found.  It does neither exist as an absolute directory nor in '/home/ubuntu/Kommodul/catkin_ws2/install/${idir}'.  ${_report}")
     endif()
     _list_append_unique(cringe_bot_INCLUDE_DIRS ${include})
   endforeach()
@@ -129,7 +129,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/ubuntu/Kommodul/catkin_ws2/devel/lib;/home/ubuntu/Kommodul/catkin_ws2/devel/lib;/home/ubuntu/Kommodul/catkin_ws/devel/lib;/opt/ros/kinetic/lib)
+    foreach(path /home/ubuntu/Kommodul/catkin_ws2/install/lib;/home/ubuntu/Kommodul/catkin_ws2/devel/lib;/home/ubuntu/Kommodul/catkin_ws/devel/lib;/opt/ros/kinetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
