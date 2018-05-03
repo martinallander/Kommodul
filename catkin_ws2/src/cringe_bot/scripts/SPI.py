@@ -3,6 +3,7 @@ import time
 import struct
 import RPi.GPIO as GPIO
 import binascii
+from Sensor_Data import Sensor_Data
 
 def gpio_setup():
         GPIO.setmode(GPIO.BCM)
@@ -20,13 +21,17 @@ class SPI:
                 self.styr.mode =  0b00
                 self.length = 0
                 self.done = True
+                self.sd = Sensor_Data()
                 
         def set_modes(self, module, mode_id):
         	module.mode = mode_id
 
         def request_sensor(self, sensor):
                 if sensor.lower() == "all":
-                        pass
+                        self.read("acc")
+                        self.read("angle")
+                        self.read("dist")
+                        self.read("ir")
                 elif sensor.lower() == "acc":
                         self.length = 12
                         self.sens.writebytes([0x02])
@@ -39,9 +44,6 @@ class SPI:
                 elif sensor.lower() == "ir":
                         self.length = 256
                         self.sens.writebytes([0x05])
-                else:
-                        self.length = 0
-                        print("xD")
 
         def check_ACK(self):
                 ack = self.sens.readbytes(1)[0]
@@ -71,14 +73,41 @@ class SPI:
 
         def read(self, sensor):
                 self.done = False
-                self.request_sensor(sensor)
-                if self.check_ACK():
-                        data = self.read_sensor()
-                        self.done = True
-                        return data
+                if sensor.lower() == "all":
+                        request_sensor("all")
+                elif sensor.lower() == "acc":
+                        request_sensor("acc")
+                        if self.check_ACK():
+                                self.sd.set_acc(self.read_sensor())
+                                self.done = True
+                        else:
+                                self.done = True
+                elif sensor.lower() == "angle":
+                        request_sensor("angle")
+                        if self.check_ACK():
+                                self.sd.set_angle(self.read_sensor())
+                                self.done = True
+                        else:
+                                self.done = True
+                elif sensor.lower() == "dist":
+                        request_sensor("dist")
+                        if self.check_ACK():
+                                self.sd.set_dist(self.read_sensor())
+                                self.done = True
+                        else:
+                                self.done = True
+                elif sensor.lower() == "ir":
+                        request_sensor("ir")
+                        if self.check_ACK():
+                                self.sd.set_ir(self.read_sensor())
+                                self.done = True
+                        else:
+                                self.done = True
                 else:
-                        self.done = True
-                        return None
+                        self.length = 0
+                        print("unknown request")
+
+                
 
         def move(self, command):
                 self.done = False
