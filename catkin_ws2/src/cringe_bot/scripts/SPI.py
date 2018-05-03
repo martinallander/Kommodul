@@ -74,30 +74,30 @@ class SPI:
         def read(self, sensor):
                 self.done = False
                 if sensor.lower() == "all":
-                        request_sensor("all")
+                        self.request_sensor("all")
                 elif sensor.lower() == "acc":
-                        request_sensor("acc")
+                        self.request_sensor("acc")
                         if self.check_ACK():
                                 self.sd.set_acc(self.read_sensor())
                                 self.done = True
                         else:
                                 self.done = True
                 elif sensor.lower() == "angle":
-                        request_sensor("angle")
+                        self.request_sensor("angle")
                         if self.check_ACK():
                                 self.sd.set_angle(self.read_sensor())
                                 self.done = True
                         else:
                                 self.done = True
                 elif sensor.lower() == "dist":
-                        request_sensor("dist")
+                        self.request_sensor("dist")
                         if self.check_ACK():
                                 self.sd.set_dist(self.read_sensor())
                                 self.done = True
                         else:
                                 self.done = True
                 elif sensor.lower() == "ir":
-                        request_sensor("ir")
+                        self.request_sensor("ir")
                         if self.check_ACK():
                                 self.sd.set_ir(self.read_sensor())
                                 self.done = True
