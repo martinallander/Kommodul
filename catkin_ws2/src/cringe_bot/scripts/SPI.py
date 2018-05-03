@@ -84,18 +84,14 @@ class SPI:
                 self.done = False
                 if command == "forward":
                         self.styr.writebytes([0x01])
-                        print("up")
                 elif command == "backward":
                         self.styr.writebytes([0x02])
-                        print("down")
                 elif command == "rotleft":
                         self.styr.writebytes([0x03])
-                        print"left"
                 elif command == "rotright":
                         self.styr.writebytes([0x04])
-                        print"right"
                 self.done = True
-                return latest_move()
+                return self.latest_move()
 
         def latest_move(self):
                 return self.styr.readbytes(1)[0]
