@@ -3,7 +3,6 @@
 
 from SPI import SPI
 import rospy
-import pickle
 from std_msgs.msg import String
 from cringe_bot.msg import Sensordata
 
@@ -17,7 +16,6 @@ def callback(data, spi_node):
         spi_node.insert_styr_back(data.data.lower())
     else:
         spi_node.insert_sens_back(data.data.lower())
-    print(data.data)
     spi_node.perform_action()
 
 def listener(spi_node):
@@ -37,8 +35,6 @@ def listener(spi_node):
 class SPI_node:
     def __init__(self):
         self.spi = SPI(10000)
-        self.next = ""
-        self.next_type = False
         self.styr_queue = list()
         self.sens_queue = list()
 
