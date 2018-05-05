@@ -1,13 +1,8 @@
 import spidev
 import time
 import struct
-import RPi.GPIO as GPIO
 import binascii
 from Sensor_Data import Sensor_Data
-
-def gpio_setup():
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(4, GPIO.IN)
 
 class SPI:
         def __init__(self, clk_speed):
@@ -21,6 +16,7 @@ class SPI:
                 self.styr.mode =  0b00
                 self.length = 0
                 self.done = True
+                self.move_ready = True
                 self.sd = Sensor_Data()
                 
         def set_modes(self, module, mode_id):
@@ -112,15 +108,32 @@ class SPI:
         def move(self, command):
                 self.done = False
                 if command == "forward":
-                        self.styr.writebytes([0x01])
+                        lol = self.styr.xfer2([0x01])
+                        xd = self.styr.readbytes(1)[0]
+                        print(lol)
+                        print(xd)
                 elif command == "backward":
-                        self.styr.writebytes([0x02])
+                        lol2 = self.styr.xfer([0x02])
+                        xd2 = self.styr.readbytes(1)[0]
+                        print(lol2)
+                        print(xd2)
+                        
                 elif command == "rotleft":
                         self.styr.writebytes([0x03])
                 elif command == "rotright":
                         self.styr.writebytes([0x04])
+                self.check_move_ready()
                 self.done = True
-                return self.latest_move()
+                return self.move_ready
 
-        def latest_move(self):
-                return self.styr.readbytes(1)[0]
+        def check_move_ready(self):
+                #i = 0
+                #while i < 10:
+                ready = self.styr.readbytes(1)[0]
+                #print("Ready status:")
+                #print(ready)
+                #        i +=1
+                if ready == 0xD0:
+                        self.move_ready = False
+                else:
+                        self.move_ready = True

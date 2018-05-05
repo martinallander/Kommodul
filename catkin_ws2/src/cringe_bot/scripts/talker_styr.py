@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Software License Agreement (BSD License)
 
+import time
 import rospy
 from std_msgs.msg import String
 
@@ -13,6 +14,7 @@ def talker():
     while i < 8:
         if i == 4:
             spi_str = "backward"
+        #time.sleep(5)
         rospy.loginfo(spi_str)
         pub.publish(spi_str)
         i += 1
