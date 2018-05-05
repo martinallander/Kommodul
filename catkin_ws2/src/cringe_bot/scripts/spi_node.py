@@ -10,7 +10,7 @@ move_commands = ["rotright", "rotleft", "forward", "backward"]
 #global spi = SPI(10000)
 
 def callback(data, spi_node):
-    #rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
+    rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
     #print(data.data)
     if data.data.lower() in move_commands:
         spi_node.insert_styr_back(data.data.lower())
@@ -20,12 +20,12 @@ def callback(data, spi_node):
 
 def listener(spi_node):
     rospy.init_node('spi_node', anonymous=True)
-    pub = rospy.Publisher('sensor', Sensordata, queue_size=1000)
+    pub = rospy.Publisher('sensor', Sensordata, queue_size=1)
     rospy.Subscriber('spi_commands', String, callback, spi_node)
     # spin() simply keeps python from exiting until this node is stopped
-    rate = rospy.Rate(1000) # 10hz
+    rate = rospy.Rate(5) # 30hz
     while not rospy.is_shutdown():
-        sd = Sensordata(spi_node.spi.sd.acc, spi_node.spi.sd.gyro, spi_node.spi.sd.ir, spi_node.spi.sd.tof)
+        sd = Sensordata(spi_node.spi.sd.acc, spi_node.spi.sd.angle, spi_node.spi.sd.ir, spi_node.spi.sd.tof)
         #print(spi_node.spi.sd.ir)
         rospy.loginfo(sd)
         pub.publish(sd)
@@ -35,7 +35,7 @@ def listener(spi_node):
 
 class SPI_node:
     def __init__(self):
-        self.spi = SPI(10000)
+        self.spi = SPI(150000)
         self.styr_queue = list()
         self.sens_queue = list()
 
@@ -64,6 +64,7 @@ class SPI_node:
         self.spi.sens.close()
         self.spi.styr.close()
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
+    print("xd")
     sp = SPI_node()
     listener(sp)
