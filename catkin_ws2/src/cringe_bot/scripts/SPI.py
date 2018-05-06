@@ -108,16 +108,9 @@ class SPI:
         def move(self, command):
                 self.done = False
                 if command == "forward":
-                        lol = self.styr.xfer2([0x01])
-                        xd = self.styr.readbytes(1)[0]
-                        print(lol)
-                        print(xd)
+			self.styr.writebytes([0x01])
                 elif command == "backward":
-                        lol2 = self.styr.xfer([0x02])
-                        xd2 = self.styr.readbytes(1)[0]
-                        print(lol2)
-                        print(xd2)
-                        
+                        self.styr.writebytes([0x02])
                 elif command == "rotleft":
                         self.styr.writebytes([0x03])
                 elif command == "rotright":

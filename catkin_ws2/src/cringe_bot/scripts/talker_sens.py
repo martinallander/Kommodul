@@ -9,16 +9,17 @@ def talker():
     rospy.init_node('talker', anonymous=True)
     rate = rospy.Rate(530) # 10hz for ir
     while not rospy.is_shutdown():
-        for i in range(40):
-            spi_str = "angle"
-            pub.publish(spi_str)
-            spi_str = "acc"
-            pub.publish(spi_str)
-            spi_str = "dist"
-            pub.publish(spi_str)
-            rate.sleep()
-        spi_str = "ir"
-        pub.publish(spi_str)
+	rospy.loginfo("ir")
+        pub.publish('ir')
+	#request(pub, rate)
+	rate.sleep()
+
+def request(pub, rate):
+	for i in range(40):
+            pub.publish("angle")
+            pub.publish("acc")
+            pub.publish("dist")
+            
 
 if __name__ == '__main__':
     try:

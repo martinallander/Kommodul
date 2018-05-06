@@ -3,6 +3,7 @@
 
 from SPI import SPI
 import rospy
+import time
 from std_msgs.msg import String
 from cringe_bot.msg import Sensordata
 
@@ -10,8 +11,8 @@ move_commands = ["rotright", "rotleft", "forward", "backward"]
 #global spi = SPI(10000)
 
 def callback(data, spi_node):
-    #rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
-    #print(data.data)
+    rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
+    print(data.data)
     if data.data.lower() in move_commands:
         spi_node.insert_styr_back(data.data.lower())
     else:
@@ -23,21 +24,23 @@ def listener(spi_node):
     pub = rospy.Publisher('sensor', Sensordata, queue_size=1)
     rospy.Subscriber('spi_commands', String, callback, spi_node)
     # spin() simply keeps python from exiting until this node is stopped
-    rate = rospy.Rate(1) # 30hz
+    rate = rospy.Rate(10) # 30hz
+    i = 0
     while not rospy.is_shutdown():
+	#print(len(spi_node.sens_queue))
         sd = Sensordata(spi_node.spi.sd.acc, spi_node.spi.sd.angle, spi_node.spi.sd.ir, spi_node.spi.sd.tof)
-        for temp in spi_node.spi.sd.ir:
-            if temp > 50.0:
-                print("HOT HOT")
-        #rospy.loginfo(sd)
-        #pub.publish(sd)
-        rate.sleep()
+        rospy.loginfo(sd)
+        pub.publish(sd)
+	#print("length:")
+	#print(i)
+	#i +=1
+        #rate.sleep()
     rospy.spin()
     spi_node.close()
 
 class SPI_node:
     def __init__(self):
-        self.spi = SPI(10000)
+        self.spi = SPI(150000)
         self.styr_queue = list()
         self.sens_queue = list()
 
@@ -70,6 +73,6 @@ class SPI_node:
         self.spi.styr.close()
 
 if __name__ == '__main__': 
-    print("xd")
+    print("Starting!")
     sp = SPI_node()
     listener(sp)
