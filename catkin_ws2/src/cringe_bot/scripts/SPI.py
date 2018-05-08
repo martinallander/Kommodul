@@ -121,7 +121,8 @@ class SPI:
 			self.styr.writebytes([0x05])
 		elif command == "turnright":
 			self.styr.writebytes([0x06])
-		if self.check_move_ready():
+		self.check_move_ready()
+		if self.move_ready:
 			self.last_move = command
 			self.to_publish = True
 		self.done = True
@@ -140,7 +141,7 @@ class SPI:
 	def publish_move(self):
 		if self.to_publish == True:
 			self.to_publish = False
-			return last_move
+			return self.last_move
 		else:
 			return None
 		

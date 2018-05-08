@@ -11,8 +11,8 @@ move_commands = ["rotright", "rotleft", "forward", "backward", "turnleft", "turn
 
 def callback(data, spi_node):
     if data.data.lower() in move_commands:
-		if len(spi_node.styr_queue) < 10:
-        	spi_node.insert_styr_back(data.data.lower())
+		if len(spi_node.styr_queue) == 0:
+			spi_node.insert_styr_back(data.data.lower())
     
 
 def listener(spi_node):
@@ -25,6 +25,7 @@ def listener(spi_node):
 		spi_node.perform_action()
 		last_move = spi_node.spi.publish_move()
 		if last_move != None:
+			rospy.loginfo(last_move)
 			pub_moves.publish(last_move)
 		sd = Sensordata(spi_node.spi.sd.acc, spi_node.spi.sd.angle, spi_node.spi.sd.ir, spi_node.spi.sd.tof)
 		pub_sensor.publish(sd)
@@ -53,7 +54,7 @@ class SPI_node:
 	def perform_action(self):
 		if(self.spi.done == True):
 			if not len(self.styr_queue) == 0:  
-				self.spi.move(self.styr_queue.pop(0)):
+				self.spi.move(self.styr_queue.pop(0))
 			else:
 				self.spi.read("acc")
 				self.spi.read("angle")
