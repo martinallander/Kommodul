@@ -115,6 +115,10 @@ class SPI:
                         self.styr.writebytes([0x03])
                 elif command == "rotright":
                         self.styr.writebytes([0x04])
+		elif command == "turnleft":
+                        self.styr.writebytes([0x05])
+		elif command == "turnright":
+                        self.styr.writebytes([0x06])
                 self.check_move_ready()
                 self.done = True
                 return self.move_ready

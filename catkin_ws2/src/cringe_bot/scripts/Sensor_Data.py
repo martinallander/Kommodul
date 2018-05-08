@@ -10,6 +10,7 @@ class Sensor_Data:
         self.acc = acc
 
     def set_angle(self, angle):
+        print(angle[2])
         self.angle[0] = self.angle[0] + angle[0]
         self.angle[1] = self.angle[1] + angle[1]
         self.angle[2] = self.angle[2] + angle[2]

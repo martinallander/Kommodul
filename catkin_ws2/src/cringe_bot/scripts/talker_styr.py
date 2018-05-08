@@ -14,7 +14,7 @@ def talker():
     while i < 8:
         if i == 4:
             spi_str = "backward"
-        #time.sleep(5)
+        time.sleep(1)
         rospy.loginfo(spi_str)
         pub.publish(spi_str)
         i += 1

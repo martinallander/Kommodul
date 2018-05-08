@@ -7,11 +7,11 @@ from std_msgs.msg import String
 def talker():
     pub = rospy.Publisher('spi_commands', String, queue_size=1)
     rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(530) # 10hz for ir
+    rate = rospy.Rate(10) # 10hz for ir
     while not rospy.is_shutdown():
-	rospy.loginfo("ir")
-        pub.publish('ir')
-	#request(pub, rate)
+	#rospy.loginfo("ir")
+        pub.publish("ir")
+	request(pub, rate)
 	rate.sleep()
 
 def request(pub, rate):
