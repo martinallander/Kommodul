@@ -21,18 +21,20 @@ def listener(ir):
 	rospy.init_node('distressed', anonymous=True)
 	pub_moves = rospy.Publisher('moves', String, queue_size=1)
 	rospy.Subscriber('sensor', Sensordata, callback, ir)
-	rate = rospy.Rate(12) # 30hz
+	rate = rospy.Rate(1) # 30hz
 	while not rospy.is_shutdown():
 		if ir.hot and ir.in_range:
 			pub_moves.publish("Found")
+		pub_moves.publish("Not found")
+		pub_moves.publish(str(ir.hot))
+		pub_moves.publish(str(ir.in_range))
 		rate.sleep()
 	rospy.spin()
-	spi_node.close()
 
 class IR:
 	def __init__(self, inits, temp_limit, dist_limit):
 		self.init_reads = inits
-		self.reads = init_reads
+		self.reads = self.init_reads
 		self.ir_mean = 0.0
 		self.first_temps = 0.0
 		self.calibrated = False
@@ -43,6 +45,7 @@ class IR:
 		self.hot_boxes = list()
 
 	def calibrate_mean(self, ir):
+		temp_sum = 0.0
 		for temp in ir:
 			temp_sum += temp
 		self.first_temps += temp_sum/64
@@ -51,11 +54,11 @@ class IR:
 			self.calc_mean()
 
 	def calc_mean(self):
-		self.ir_mean = first_temps/self.init_reads
+		self.ir_mean = self.first_temps/self.init_reads
 		self.calibrated = True
 
 	def read_ir(self, ir):
-		self.hot_boxes.clear()
+		self.hot_boxes[:] = []
 		for i in range(len(ir)):
 			if ir[i] - self.ir_mean > self.temp_limit:
 				self.hot = True
@@ -64,7 +67,7 @@ class IR:
 				self.hot = False
 
 	def read_dist(self, dist):
-		if dist < dist_limit:
+		if dist < self.dist_limit:
 			self.in_range = True
 		else:
 			self.in_range = False
