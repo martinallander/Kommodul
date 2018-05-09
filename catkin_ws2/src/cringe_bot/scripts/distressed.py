@@ -6,8 +6,6 @@ import time
 from std_msgs.msg import String
 from cringe_bot.msg import Sensordata
 
-move_commands = ["rotright", "rotleft", "forward", "backward", "turnleft", "turnright"]
-
 def callback(data, ir):
     if not zero_in_array(data.ir):
     	if ir.calibrated:
@@ -15,20 +13,14 @@ def callback(data, ir):
     		ir.read_dist(data.dist)
     	else:
     		ir.calibrate_mean(data.ir)
-    
+    if ir.in_range and ir.hot:
+    	ir.publish("Yes")
+    else:
+    	ir.publish("NO")
 
 def listener(ir):
 	rospy.init_node('distressed', anonymous=True)
-	pub_moves = rospy.Publisher('moves', String, queue_size=1)
 	rospy.Subscriber('sensor', Sensordata, callback, ir)
-	rate = rospy.Rate(1) # 30hz
-	while not rospy.is_shutdown():
-		if ir.hot and ir.in_range:
-			pub_moves.publish("Found")
-		pub_moves.publish("Not found")
-		pub_moves.publish(str(ir.hot))
-		pub_moves.publish(str(ir.in_range))
-		rate.sleep()
 	rospy.spin()
 
 class IR:
@@ -43,6 +35,7 @@ class IR:
 		self.hot = False
 		self.in_range = False
 		self.hot_boxes = list()
+		self.pub_moves = rospy.Publisher('moves', String, queue_size=1)
 
 	def calibrate_mean(self, ir):
 		temp_sum = 0.0
@@ -71,6 +64,9 @@ class IR:
 			self.in_range = True
 		else:
 			self.in_range = False
+
+	def publish(self, string):
+		self.pub_moves.publish(string)
 
 def zero_in_array(values):
 	if any(v == 0 for v in values):
