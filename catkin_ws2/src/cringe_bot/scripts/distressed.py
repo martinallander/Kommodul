@@ -4,6 +4,7 @@
 import rospy
 import time
 from std_msgs.msg import String
+import math
 from cringe_bot.msg import Sensordata
 
 def callback(data, ir):
@@ -14,9 +15,11 @@ def callback(data, ir):
     	else:
     		ir.calibrate_mean(data.ir)
     if ir.in_range and ir.hot:
-    	ir.publish("Yes")
-    else:
-    	ir.publish("NO")
+    	ir.publish("Found")
+    	#ir.publish(str(ir.format_grid()))
+    #else:
+    	#ir.publish("")
+    	#ir.publish(str(ir.format_grid()))
 
 def listener(ir):
 	rospy.init_node('distressed', anonymous=True)
@@ -56,8 +59,21 @@ class IR:
 			if ir[i] - self.ir_mean > self.temp_limit:
 				self.hot = True
 				self.hot_boxes.append(i)
-			else:
-				self.hot = False
+				#print(i)
+
+	def format_grid(self):
+		boxes = list()
+		if len(self.hot_boxes) == 0:
+			return None
+		else:
+			for box in self.hot_boxes:
+				boxes.append(self.index_to_coord(box))
+			return boxes
+
+	def index_to_coord(self, index):
+		x = int(math.fabs(math.floor(index/8)-8))
+		y = int(math.fabs((index % 8)-8))
+		return(x,y)
 
 	def read_dist(self, dist):
 		if dist < self.dist_limit:
@@ -74,6 +90,28 @@ def zero_in_array(values):
 	else:
 		return False
 
-if __name__ == '__main__': 
-	ir = IR(10, 4.0, 50.0)
+if __name__ == '__main__':
+	calibrations = 10
+	temperature_threshold = 4.0
+	distance_treshold = 50.0 
+	ir = IR(calibrations, temperature_threshold, distance_treshold)
 	listener(ir)
+	#init_values = [20.0]*64
+	#hot_values = init_values
+	#hot_values[20] = 25.0
+	#dist = 80.0
+	#close_dist = 30.0
+	#i = 0
+	#while i < 11:
+#		ir.calibrate_mean(init_values)
+#		i += 1#
+		#if ir.calibrated:
+# 	ir.read_ir(hot_values)
+# 	ir.read_dist(close_dist)
+# 	grid = ir.format_grid()
+# 	print(grid)
+#	if ir.in_range and ir.hot:
+#		print("Yes")
+#	else:
+#		print("No")
+    #else:
