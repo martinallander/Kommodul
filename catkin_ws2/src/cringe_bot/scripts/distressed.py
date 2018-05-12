@@ -16,7 +16,7 @@ def callback(data, ir):
     		ir.calibrate_mean(data.ir)
     if ir.in_range and ir.hot:
     	ir.publish("Found")
-    	#ir.publish(str(ir.format_grid()))
+    	ir.publish(str(ir.format_grid()))
     #else:
     	#ir.publish("")
     	#ir.publish(str(ir.format_grid()))
@@ -57,9 +57,12 @@ class IR:
 		self.hot_boxes[:] = []
 		for i in range(len(ir)):
 			if ir[i] - self.ir_mean > self.temp_limit:
-				self.hot = True
 				self.hot_boxes.append(i)
 				#print(i)
+		if len(self.hot_boxes) == 0:
+			self.hot = False
+		else:
+			self.hot = True
 
 	def format_grid(self):
 		boxes = list()
@@ -91,7 +94,7 @@ def zero_in_array(values):
 		return False
 
 if __name__ == '__main__':
-	calibrations = 10
+	calibrations = 100
 	temperature_threshold = 4.0
 	distance_treshold = 50.0 
 	ir = IR(calibrations, temperature_threshold, distance_treshold)
