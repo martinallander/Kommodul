@@ -18,13 +18,13 @@ def talker():
     i = 0
     while not rospy.is_shutdown():
         if i > 10:
-            sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, close_dist)
+            sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, hot_values, close_dist)
         #if i == 14:
         #    sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, dist)
         #if i == 15:
         #    sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, close_dist)
             i = 0
-        sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], init_values, dist)
+        sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], init_values, init_values, dist)
         #rospy.loginfo(sd)
         pub.publish(sd)
         rate.sleep()
