@@ -60,6 +60,7 @@ class SPI_node:
 				self.spi.read("angle")
 				self.spi.read("dist")
 				self.spi.read("ir")
+				self.spi.read("ir_right")
 
 	def close(self):
 		self.spi.sens.close()
