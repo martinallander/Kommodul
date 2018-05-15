@@ -24,7 +24,8 @@ def talker():
         #if i == 15:
         #    sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, close_dist)
             i = 0
-        sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], init_values, init_values, dist)
+        else:
+            sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], init_values, init_values, dist)
         #rospy.loginfo(sd)
         pub.publish(sd)
         rate.sleep()
