@@ -12,8 +12,12 @@ def callback(array, ai):
     ai.publish(str(values[0]))
 
 
+def callback_dist(ir, ai):
+    ai.publish(ir)
+
 def closest(values):
     return min(values)
+
 
 def minimum(values):
     min_index, min_value = min(enumerate(values), key=operator.itemgetter(1))
@@ -29,6 +33,7 @@ def listener(AI):
     rospy.init_node('listener', anonymous=True)
 
     rospy.Subscriber('lidar_data', String, callback, AI)
+    rospy.Subscriber('distressed', String, callback_dist, AI)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
