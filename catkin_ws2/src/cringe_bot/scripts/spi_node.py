@@ -27,7 +27,7 @@ def listener(spi_node):
 		if last_move != None:
 			rospy.loginfo(last_move)
 			pub_moves.publish(last_move)
-		sd = Sensordata(spi_node.spi.sd.acc, spi_node.spi.sd.angle, spi_node.spi.sd.ir, spi_node.spi.sd.tof)
+		sd = Sensordata(spi_node.spi.sd.acc, spi_node.spi.sd.angle, spi_node.spi.sd.ir, spi_node.spi.sd.ir_right, spi_node.spi.sd.tof)
 		pub_sensor.publish(sd)
 		rate.sleep()
 	rospy.spin()
@@ -60,6 +60,7 @@ class SPI_node:
 				self.spi.read("angle")
 				self.spi.read("dist")
 				self.spi.read("ir")
+				self.spi.read("ir_right")
 
 	def close(self):
 		self.spi.sens.close()

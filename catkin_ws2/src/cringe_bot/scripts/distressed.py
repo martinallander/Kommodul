@@ -7,23 +7,26 @@ from std_msgs.msg import String
 import math
 from cringe_bot.msg import Sensordata
 
-def callback(data, ir):
-    if not zero_in_array(data.ir):
-    	if ir.calibrated:
-    		ir.read_ir(data.ir)
-    		ir.read_dist(data.dist)
-    	else:
-    		ir.calibrate_mean(data.ir)
-    if ir.in_range and ir.hot:
-    	ir.publish("Found")
-    	ir.publish(str(ir.format_grid()))
-    #else:
-    	#ir.publish("")
-    	#ir.publish(str(ir.format_grid()))
+def callback(data, irs):
+	ir1 = irs[0]
+	ir2 = irs[1]
+	ir_publish(ir, data.ir, data.dist, "forward")
+	ir_publish(ir2, data.ir_right, data.dist, "right")
+
+def ir_publish(ir, ir_data, dist, pub_str):
+	if not zero_in_array(ir_data):
+		if ir.calibrated:
+			ir.read_ir(ir_data)
+			ir.read_dist(dist)
+		else:
+			ir.calibrate_mean(ir_data)
+	if ir.in_range and ir.hot:
+		ir.publish(pub_str)
+		ir.publish(str(ir.format_grid()))
 
 def listener(ir):
 	rospy.init_node('distressed', anonymous=True)
-	rospy.Subscriber('sensor', Sensordata, callback, ir)
+	rospy.Subscriber('sensor', Sensordata, callback, irs)
 	rospy.spin()
 
 class IR:
@@ -46,6 +49,7 @@ class IR:
 			temp_sum += temp
 		self.first_temps += temp_sum/64
 		self.reads -= 1
+		print(self.reads)
 		if self.reads == 0:
 			self.calc_mean()
 
@@ -58,7 +62,6 @@ class IR:
 		for i in range(len(ir)):
 			if ir[i] - self.ir_mean > self.temp_limit:
 				self.hot_boxes.append(i)
-				#print(i)
 		if len(self.hot_boxes) == 0:
 			self.hot = False
 		else:
@@ -94,27 +97,32 @@ def zero_in_array(values):
 		return False
 
 if __name__ == '__main__':
-	calibrations = 100
+	calibrations = 10
 	temperature_threshold = 4.0
 	distance_treshold = 50.0 
 	ir = IR(calibrations, temperature_threshold, distance_treshold)
-	listener(ir)
-	#init_values = [20.0]*64
-	#hot_values = init_values
-	#hot_values[20] = 25.0
-	#dist = 80.0
-	#close_dist = 30.0
-	#i = 0
-	#while i < 11:
-#		ir.calibrate_mean(init_values)
-#		i += 1#
-		#if ir.calibrated:
-# 	ir.read_ir(hot_values)
-# 	ir.read_dist(close_dist)
-# 	grid = ir.format_grid()
-# 	print(grid)
-#	if ir.in_range and ir.hot:
-#		print("Yes")
-#	else:
-#		print("No")
+	ir_2 = IR(calibrations, temperature_threshold, distance_treshold)
+	irs = list()
+	irs.append(ir)
+	irs.append(ir_2)
+	listener(irs)
+	# init_values = [20.0]*64
+	# hot_values = init_values
+	# hot_values[20] = 25.0
+	# dist = 80.0
+	# close_dist = 30.0
+	# i = 0
+	# while i < 11:
+	# 	ir.calibrate_mean(init_values)
+	# 	i += 1#
+	# if ir.calibrated:
+	# 	print("Cal")
+	# 	ir.read_ir(hot_values)
+	# 	ir.read_dist(close_dist)
+	# 	grid = ir.format_grid()
+	# 	print(grid)
+	# if ir.in_range and ir.hot:
+	# 	print("Yes")
+	# else:
+	# 	print("No")
     #else:

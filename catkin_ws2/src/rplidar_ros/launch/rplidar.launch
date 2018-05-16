@@ -6,4 +6,5 @@
   <param name="inverted"            type="bool"   value="false"/>
   <param name="angle_compensate"    type="bool"   value="true"/>
   </node>
+  <node name="listener"          pkg="rplidar_ros"  type="listener.py" />
 </launch>

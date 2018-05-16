@@ -30,6 +30,7 @@ class SPI:
 			self.read("angle")
 			self.read("dist")
 			self.read("ir")
+			self.read("ir_right")
 		elif sensor.lower() == "acc":
 			self.length = 12
 			self.sens.writebytes([0x02])
@@ -42,6 +43,9 @@ class SPI:
 		elif sensor.lower() == "ir":
 			self.length = 256
 			self.sens.writebytes([0x05])
+		elif sensor.lower() == "ir_right":
+			self.length = 256
+			self.sens.writebytes([0x08])
 
 	def check_ACK(self):
 		ack = self.sens.readbytes(1)[0]
@@ -95,6 +99,13 @@ class SPI:
 				self.done = True
 		elif sensor.lower() == "ir":
 			self.request_sensor("ir")
+			if self.check_ACK():
+				self.sd.set_ir(self.read_sensor())
+				self.done = True
+			else:
+				self.done = True
+		elif sensor.lower() == "ir_right":
+			self.request_sensor("ir_right")
 			if self.check_ACK():
 				self.sd.set_ir(self.read_sensor())
 				self.done = True

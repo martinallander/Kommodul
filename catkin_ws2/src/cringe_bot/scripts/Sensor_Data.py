@@ -4,6 +4,7 @@ class Sensor_Data:
         self.acc = [0.0, 0.0, 0.0]
         self.angle = [0.0, 0.0, 0.0]
         self.ir = [0.0] * 64
+        self.ir_right = [0.0] * 64
         self.tof = 0.0
         
     def set_acc(self, acc):
@@ -17,6 +18,9 @@ class Sensor_Data:
 
     def set_ir(self, ir):
         self.ir = ir
+
+    def set_ir_right(self, ir):
+        self.ir_right = ir
 
     def set_dist(self, tof):
         self.tof = tof[0]
