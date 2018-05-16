@@ -8,15 +8,17 @@ import math
 from cringe_bot.msg import Sensordata
 from cringe_bot.msg import IRdata
 
-def callback(data, irs):
-	ir1 = irs[0]
-	ir2 = irs[1]
+def callback(data, args):
+	ir1 = args[0]
+	ir2 = args[1]
+	pub = args[2]
 	ir_read(ir, data.ir)
 	ir_read(ir2, data.ir_right)
 	if (data.dist - ir1.dist_limit) < 0:
 		found = True
-
-
+	else:
+		found = False
+	pub.publish(found, ir1.hot, ir1.hot_boxes, ir2.hot, ir2.hot_boxes)
 
 def ir_read(ir, ir_data):
 	if not zero_in_array(ir_data):
@@ -25,9 +27,9 @@ def ir_read(ir, ir_data):
 		else:
 			ir.calibrate_mean(ir_data)
 
-def listener(ir):
+def listener(args):
 	rospy.init_node('distressed', anonymous = True)
-	rospy.Subscriber('sensor', Sensordata, callback, irs)
+	rospy.Subscriber('sensor', Sensordata, callback, args)
 	rospy.spin()
 
 class Distressed_publisher():
@@ -36,7 +38,7 @@ class Distressed_publisher():
 
 	def publish(self, found, has_forward, ir_forward, has_right, ir_right):
 		pub = IRdata(found, has_forward, ir_forward, has_right, ir_right)
-		pub_ir.publish(pub)
+		self.pub_ir.publish(pub)
 
 class IR:
 	def __init__(self, inits, temp_limit, dist_limit = 0.0):
@@ -69,10 +71,10 @@ class IR:
 		self.hot_boxes[:] = []
 		for i in range(len(ir)):
 			if ir[i] - self.ir_mean > self.temp_limit:
-				self.hot_boxes.append(True)
+				self.hot_boxes.append(1)
 			else:
-				self.hot_boxes.append(False)
-		if True in self.hot_boxes:
+				self.hot_boxes.append(0)
+		if 1 in self.hot_boxes:
 			self.hot = False
 		else:
 			self.hot = True
@@ -110,10 +112,12 @@ if __name__ == '__main__':
 	distance_treshold = 50.0 
 	ir = IR(calibrations, temperature_threshold, distance_treshold)
 	ir_2 = IR(calibrations, temperature_threshold)
+	dp = Distressed_publisher()
 	args = list()
 	args.append(ir)
 	args.append(ir_2)
-	listener(irs)
+	args.append(dp)
+	listener(args)
 	# init_values = [20.0]*64
 	# hot_values = init_values
 	# hot_values[20] = 25.0

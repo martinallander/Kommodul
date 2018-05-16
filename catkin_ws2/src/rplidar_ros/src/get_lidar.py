@@ -6,9 +6,12 @@ import os
 import rospy
 from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
+from cringe_bot.msg import Lidardistances
+
+MIN_VALUE = 0.3
 
 def callback(measurement, classes):
-    ai = classes[0]
+    dist = classes[0]
     ai = classes[1]
     if (dist.done):
         dist.done = False
@@ -16,16 +19,10 @@ def callback(measurement, classes):
         #dist.publish_closest(measurement.ranges)
         mini = minimum(measurement.ranges)
         ang = dist.get_angle(measurement.angle_min, measurement.angle_increment, mini[0])
+        if min_value < 0.3:
         values = measurement.ranges
-        if not str(values[0]) == "inf":
-            dist.back = values[0]
-        if not str(values[90]) == "inf":
-            dist.right = values[90]
-        if not str(values[180]) == "inf":
-            dist.front = values[180]
-        if not str(values[270]) == "inf":
-            dist.left = values[270]
-        ai.publish(ai.find_move(dist))
+        dist.set_all(values)
+
         dist.done = True
     else: 
         pass
@@ -78,29 +75,37 @@ class AI():
         self.pub.publish(string)
 
 class Distances():
-    def __init__(self):
+    def __init__(self, limit):
         self.pub = rospy.Publisher('lidar_data', String, queue_size=1)
-        self.closest = 0
+        self.limit = limit
         self.done = True
         self.back = 0.0
         self.right = 0.0
         self.front = 0.0
         self.left = 0.0
+        self.all = [0.0] * 360
+        self.allowed = [1] * 360
+
+    def set_all(self, values):
+        i = 0
+        for val in values:
+            if not str(val) == "inf":
+                self.all[i] = val
+                if self.all[i] < self.limit:
+                    self.allowed[i] = 0
+                else:
+                    self.allowed[i] = 1
+            i += 1
+        self.back = self.all[0]
+        self.right = self.all[90]
+        self.front = self.all[180]
+        self.left = self.all[270]
 
     def publish(self, string):
         self.pub.publish(string)
 
-    def flip(self, val):
-        self.done = val
-
-    def closest(self, ranges):
-        return min(ranges)
-
     def get_angle(self, angle_min, angle_inc, index):
         return angle_min + (angle_inc*index)
-
-    def __str__(self):
-        return "Back: " + str(self.back) + os.linesep + "Right: " + str(self.right) + os.linesep + "Front: " + str(self.front) + os.linesep + "Left: " + str(self.left) + os.linesep
 
 if __name__ == '__main__':
     dist = Distances()

@@ -52,6 +52,7 @@ add_message_files(
    FILES
    Sensordata.msg
    IRdata.msg
+   Lidardistances.msg
  )
 
 ## Generate services in the 'srv' folder
