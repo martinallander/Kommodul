@@ -107,7 +107,7 @@ class SPI:
 		elif sensor.lower() == "ir_right":
 			self.request_sensor("ir_right")
 			if self.check_ACK():
-				self.sd.set_ir(self.read_sensor())
+				self.sd.set_ir_right(self.read_sensor())
 				self.done = True
 			else:
 				self.done = True
