@@ -20,21 +20,26 @@ args="-d $(find rplidar_ros)/rviz_cfg/mapping_demo.rviz"/> -->
 <node pkg="odom_bc" name="odombc" type="odom_pub.py"/>
  
   <node pkg="gmapping" type="slam_gmapping" name="simple_gmapping" output="screen">
-      <param name="map_update_interval" value="10" />
-      <param name="particles" value="1" />
+      <param name="map_update_interval" value="5" />
+      <param name="throttle_scans" value="5" />
+      <param name="particles" value="50" />
       <param name="angularUpdate" value="0.0" />
       <param name="linearUpdate" value="0.0" />
-      <param name="iterations" value="10" />
-      <param name="delta" value="0.05" />
-      <param name="srr" value="1.0" />
-      <param name="srt" value="1.0" />
-      <param name="stt" value="1.0" />
-      <param name="str" value="1.0" />
-      <param name="maxUrange" value="8" />
+      <param name="iterations" value="5" />
+      <param name="delta" value="0.15" />
+      <param name="ogain" value="10" />
+      <param name="srr" value="0.1" />
+      <param name="srt" value="0.2" />
+      <param name="stt" value="0.1" />
+      <param name="str" value="0.2" />
+      <param name="maxUrange" value="5" />
+      <param name="maxRange" value="8" />
+      <param name="minimumScore" value="100" />
       <param name="llsamplerange" value="0.01"/>
       <param name="llsamplestep" value="0.01"/>
       <param name="lasamplerange" value="0.005"/>
       <param name="lasamplestep" value="0.005"/>
+      <param name="transform_publish_period" value="0.1" />
   </node>
 
 

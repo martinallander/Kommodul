@@ -6,31 +6,46 @@ import time
 from std_msgs.msg import String
 import math
 from cringe_bot.msg import Sensordata
+from cringe_bot.msg import IRdata
 
-def callback(data, irs):
-	ir1 = irs[0]
-	ir2 = irs[1]
-	ir_publish(ir, data.ir, data.dist, "forward")
-	ir_publish(ir2, data.ir_right, data.dist, "right")
+CALIBRATIONS = 10
+TEMP_TRESH = 4.0
+DIST_TRESH = 50.0
 
-def ir_publish(ir, ir_data, dist, pub_str):
+def callback(data, args):
+	ir1 = args[0]
+	ir2 = args[1]
+	pub = args[2]
+	ir_read(ir, data.ir)
+	ir_read(ir2, data.ir_right)
+	if (data.dist - ir1.dist_limit) < 0:
+		found = True
+	else:
+		found = False
+	pub.publish(found, ir1.hot, ir1.hot_boxes, ir2.hot, ir2.hot_boxes)
+
+def ir_read(ir, ir_data):
 	if not zero_in_array(ir_data):
 		if ir.calibrated:
 			ir.read_ir(ir_data)
-			ir.read_dist(dist)
 		else:
 			ir.calibrate_mean(ir_data)
-	if ir.in_range and ir.hot:
-		ir.publish(pub_str)
-		ir.publish(str(ir.format_grid()))
 
-def listener(ir):
-	rospy.init_node('distressed', anonymous=True)
-	rospy.Subscriber('sensor', Sensordata, callback, irs)
+def listener(args):
+	rospy.init_node('distressed', anonymous = True)
+	rospy.Subscriber('sensor', Sensordata, callback, args)
 	rospy.spin()
 
+class Distressed_publisher():
+	def __init__(self):
+		self.pub_ir = rospy.Publisher('distressed', IRdata, queue_size=1)
+
+	def publish(self, found, has_forward, ir_forward, has_right, ir_right):
+		pub = IRdata(found, has_forward, ir_forward, has_right, ir_right)
+		self.pub_ir.publish(pub)
+
 class IR:
-	def __init__(self, inits, temp_limit, dist_limit):
+	def __init__(self, inits, temp_limit, dist_limit = 0.0):
 		self.init_reads = inits
 		self.reads = self.init_reads
 		self.ir_mean = 0.0
@@ -41,7 +56,6 @@ class IR:
 		self.hot = False
 		self.in_range = False
 		self.hot_boxes = list()
-		self.pub_moves = rospy.Publisher('moves', String, queue_size=1)
 
 	def calibrate_mean(self, ir):
 		temp_sum = 0.0
@@ -61,8 +75,10 @@ class IR:
 		self.hot_boxes[:] = []
 		for i in range(len(ir)):
 			if ir[i] - self.ir_mean > self.temp_limit:
-				self.hot_boxes.append(i)
-		if len(self.hot_boxes) == 0:
+				self.hot_boxes.append(1)
+			else:
+				self.hot_boxes.append(0)
+		if 1 in self.hot_boxes:
 			self.hot = False
 		else:
 			self.hot = True
@@ -87,8 +103,6 @@ class IR:
 		else:
 			self.in_range = False
 
-	def publish(self, string):
-		self.pub_moves.publish(string)
 
 def zero_in_array(values):
 	if any(v == 0 for v in values):
@@ -101,11 +115,13 @@ if __name__ == '__main__':
 	temperature_threshold = 4.0
 	distance_treshold = 50.0 
 	ir = IR(calibrations, temperature_threshold, distance_treshold)
-	ir_2 = IR(calibrations, temperature_threshold, distance_treshold)
-	irs = list()
-	irs.append(ir)
-	irs.append(ir_2)
-	listener(irs)
+	ir_2 = IR(calibrations, temperature_threshold)
+	dp = Distressed_publisher()
+	args = list()
+	args.append(ir)
+	args.append(ir_2)
+	args.append(dp)
+	listener(args)
 	# init_values = [20.0]*64
 	# hot_values = init_values
 	# hot_values[20] = 25.0

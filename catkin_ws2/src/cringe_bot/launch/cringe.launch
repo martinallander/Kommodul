@@ -1,5 +1,7 @@
 <launch>
 
 <node name="cringe" pkg="cringe_bot" type="spi_node.py" />
+<node name="cringe" pkg="cringe_bot" type="distressed.py" />
+<node name="cringe" pkg="cringe_bot" type="desicions.py" />
 
 </launch>

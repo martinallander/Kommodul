@@ -1,6 +1,6 @@
 <launch>
 
 <node name="cringe" pkg="cringe_bot" type="distressed.py" />
-<node name="talker" pkg="cringe_bot" type="talker_distressed.py" />
+<node name="talker" pkg="cringe_bot" type="spi_node.py" />
 
 </launch>
