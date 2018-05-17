@@ -9,8 +9,8 @@ from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from cringe_bot.msg import Lidardistances
 
-MIN_VALUE = 0.5
-LEG_LENGTH = 0.3
+MIN_VALUE = 0.6
+LEG_LENGTH = 0.4
 ANGLE_DRIFT = 10
 
 def callbackward(measurement, classes):
@@ -66,6 +66,7 @@ class Distances():
         self.all = [0.0] * 360
         self.allowed = [1] * 360
         self.angle = int(math.degrees(math.acos(LEG_LENGTH/self.limit)))
+	self.angle = 80
 
     def check_moves(self):
         self.backward = True

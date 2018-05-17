@@ -77,6 +77,7 @@ class AI():
     			command = prefered_commands[i]
 			break
     	#self.publish(str(prefered_commands))
+	self.publish(str(available_commands))
     	self.publish(command)
 
     def camera_placement(self, ir):
@@ -107,9 +108,10 @@ class AI():
     	preferences.append(FORWARD)
     	preferences.append(TURNLEFT)
     	preferences.append(TURNRIGHT)
-    	preferences.append(BACKWARD)
+    	#preferences.append(BACKWARD)
     	preferences.append(ROTRIGHT)
     	preferences.append(ROTLEFT)
+	preferences.append(BACKWARD)
     	return preferences
 
 
