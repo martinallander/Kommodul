@@ -11,6 +11,7 @@ from cringe_bot.msg import Lidardistances
 
 MIN_VALUE = 0.5
 LEG_LENGTH = 0.3
+ANGLE_DRIFT = 10
 
 def callbackward(measurement, classes):
     dist = classes[0]
@@ -18,8 +19,8 @@ def callbackward(measurement, classes):
         dist.done = False
         #rospy.loginfo(rospy.get_caller_id() + 'I heard %s', measurement)
         #dist.publish_closest(measurement.ranges)
-        mini = minimum(measurement.ranges)
-        ang = dist.get_angle(measurement.angle_min, measurement.angle_increment, mini[0])
+        #mini = minimum(measurement.ranges)
+        #ang = dist.get_angle(measurement.angle_min, measurement.angle_increment, mini[0])
         #if min_value < 0.3:
         values = measurement.ranges
         dist.set_all(values)
@@ -60,6 +61,7 @@ class Distances():
         self.right = False
         self.forward = False
         self.left = False
+        self.turn_right = False
         self.turn_left = False
         self.all = [0.0] * 360
         self.allowed = [1] * 360
@@ -67,10 +69,27 @@ class Distances():
 
     def check_moves(self):
         self.forward = True
-        for i in range(90 + self.angle, 270 - self.angle):
+        for i in range(90 - ANGLE_DRIFT + self.angle, 270 + ANGLE_DRIFT - self.angle):
             if self.allowed[i] == 0:
-                self.forward = False
-                break
+                if i < 90 - ANGLE_DRIFT + self.angle:
+                    self.turn_right = False
+                elif i > 270 + ANGLE_DRIFT - self.angle:
+                    self.turn_left = False
+                else:
+                    if i > 90 + ANGLE_DRIFT + self.angle:
+                        self.forward = False
+                        self.turn_left = False
+                        self.turn_right = False
+                    else:
+                        self.forward = False
+                        self.turn_right = False
+                    if i > 270 - ANGLE_DRIFT + self.angle:
+                        self.forward = False
+                        self.turn_left = False
+                    else:
+                        self.forward = False
+                        self.turn_left = False
+                        self.turn_right = False
 
         self.backward = True
         for i in range(270 + self.angle, 360):
@@ -91,16 +110,6 @@ class Distances():
         for i in range(250, 290):
             if self.allowed[i] == 0:
                 self.left = False
-                break
-
-        for i in range(80 + self.angle, 260 - self.angle):
-            if self.allowed[i] == 0:
-                self.turn_right = False
-                break
-
-        for i in range(100 + self.angle, 280 - self.angle):
-            if self.allowed[i] == 0:
-                self.turn_left = False
                 break
 
 

@@ -14,23 +14,22 @@ close_dist = 30.0
 def talker():
     pub = rospy.Publisher('sensor', Sensordata, queue_size=1)
     rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
+    rate = rospy.Rate(1) # 10hz
     i = 0
     while not rospy.is_shutdown():
-        if i > 10:
-            sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, hot_values, close_dist)
-        #if i == 14:
-        #    sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, dist)
-        #if i == 15:
-        #    sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, close_dist)
-            i = 0
-        else:
-            sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], init_values, init_values, dist)
+        sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], init_values, init_values, dist)
         #rospy.loginfo(sd)
         pub.publish(sd)
         rate.sleep()
         i += 1
-
+        #f i > 10:
+        #    sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, hot_values, close_dist)
+        #if i == 14:
+        #    sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, dist)
+        #if i == 15:
+        #    sd = Sensordata([0.0,0.0,0.0], [0.0,0.0,0.0], hot_values, close_dist)
+        #else:
+        
 if __name__ == '__main__':
     try:
         talker()

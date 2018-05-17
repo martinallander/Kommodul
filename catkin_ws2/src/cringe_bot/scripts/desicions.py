@@ -9,22 +9,31 @@ from cringe_bot.msg import IRdata
 from cringe_bot.msg import Lidardistances
 import ast
 
+FORWARD = "forward"
+BACKWARD = "backward"
+TURNLEFT = "turnleft"
+TURNRIGHT = "turnright"
+ROTRIGHT = "rotright"
+ROTLEFT = "rotleft"
+
+
 def callback(lidar, ai):
     ai.get_lidar(lidar)
+    #ai.publish(str(lidar.backward))
+    ai.publish(str(lidar.turn_right))
+    ai.publish(str(lidar.turn_right))
+    #ai.publish(str(lidar.minimum))
     #ai.publish(str(lidar.angle))
    # for i in range(90 + lidar.angle, 270 - lidar.angle):
    #     if lidar.minimum[i] == 0:
    #         ai.publish(str(i))
 #    ai.publish(str(lidar.backward))
 
-
-
 def callback_dist(irdata, ai):
     ai.get_distressed(irdata)
 
 def closest(values):
     return min(values)
-
 
 def mini_range(values):
     min_index, min_value = min(enumerate(values), key=operator.itemgetter(1))
@@ -36,7 +45,7 @@ def listener(AI):
 
     rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
     rospy.Subscriber('distressed', IRdata, callback_dist, AI)
-    rate = rospy.Rate(1)
+    rate = rospy.Rate(2)
     while not rospy.is_shutdown() and not AI.found:
         AI.decide()
         rate.sleep()
@@ -63,12 +72,14 @@ class AI():
         self.pub.publish(string)
 
     def decide(self):
+    	command = ""
     	available_commands = self.possible()
     	prefered_commands = self.prefered()
     	for move in prefered_commands:
     		if move in available_commands:
     			command = move
-    	self.publish(move)
+    	#self.publish(str(prefered_commands))
+    	self.publish(str(available_commands))
 
     def camera_placement(self, ir):
     	placement = list()
@@ -87,35 +98,35 @@ class AI():
     	preferences = list()
     	if self.has_forward:
     		placement = self.camera_placement(self.ir_forward)
-    		if "forward" in placement:
-    			preferences.append("forward")
+    		if "middle" in placement:
+    			preferences.append(FORWARD)
     		if "left" in placement:
-    			preferences.append("turnleft")
+    			preferences.append(TURNLEFT)
     		if "right" in placement:
-    			preferences.append("turnright")
+    			preferences.append(TURNRIGHT)
     	if self.has_right:
-    			preferences.append("rotright")
-    	preferences.append("forward")
-    	preferences.append("turnleft")
-    	preferences.append("turnright")
-    	preferences.append("backward")
-    	preferences.append("rotright")
-    	preferences.append("rotleft")
+    			preferences.append(ROTRIGHT)
+    	preferences.append(FORWARD)
+    	preferences.append(TURNLEFT)
+    	preferences.append(TURNRIGHT)
+    	preferences.append(BACKWARD)
+    	preferences.append(ROTRIGHT)
+    	preferences.append(ROTLEFT)
     	return preferences
 
 
     def possible(self):
     	available_commands = list()
     	if self.forward:
-    		available_commands.append("forward")
+    		available_commands.append(FORWARD)
     	if self.turn_right:
-    		available_commands.append("turnright")
+    		available_commands.append(TURNRIGHT)
     	if self.backward:
-    		available_commands.append("backward") 
+    		available_commands.append(BACKWARD) 
     	if self.turn_left:
-    		available_commands.append("forward")
-    	available_commands.append("rotright")
-    	available_commands.append("rotleft")
+    		available_commands.append(FORWARD)
+    	available_commands.append(ROTRIGHT)
+    	available_commands.append(ROTLEFT)
     	return available_commands
 
 
