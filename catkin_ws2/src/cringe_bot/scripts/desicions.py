@@ -7,7 +7,6 @@ import rospy
 from std_msgs.msg import String
 from cringe_bot.msg import IRdata
 from cringe_bot.msg import Lidardistances
-import ast
 
 FORWARD = "forward"
 BACKWARD = "backward"
@@ -43,8 +42,8 @@ def listener(AI):
 
     rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
     rospy.Subscriber('distressed', IRdata, callback_dist, AI)
-    rate = rospy.Rate(1)
-    while not rospy.is_shutdown() and not AI.found:
+    rate = rospy.Rate(0.3)
+    while not rospy.is_shutdown():
         AI.decide()
         rate.sleep()
     rospy.spin()
@@ -73,9 +72,10 @@ class AI():
     	command = ""
     	available_commands = self.possible()
     	prefered_commands = self.prefered()
-    	for move in prefered_commands:
-    		if move in available_commands:
-    			command = move
+    	for i in range(len(prefered_commands)):
+    		if prefered_commands[i] in available_commands:
+    			command = prefered_commands[i]
+			break
     	#self.publish(str(prefered_commands))
     	self.publish(command)
 
@@ -102,8 +102,8 @@ class AI():
     			preferences.append(TURNLEFT)
     		if "right" in placement:
     			preferences.append(TURNRIGHT)
-    	if self.has_right:
-    			preferences.append(ROTRIGHT)
+    	#if self.has_right:
+    	#		preferences.append(ROTRIGHT)
     	preferences.append(FORWARD)
     	preferences.append(TURNLEFT)
     	preferences.append(TURNRIGHT)
