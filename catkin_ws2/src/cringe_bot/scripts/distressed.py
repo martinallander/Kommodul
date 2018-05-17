@@ -8,7 +8,7 @@ import math
 from cringe_bot.msg import Sensordata
 from cringe_bot.msg import IRdata
 
-CALIBRATIONS = 10
+CALIBRATIONS = 100
 TEMP_TRESH = 4.0
 DIST_TRESH = 50.0
 

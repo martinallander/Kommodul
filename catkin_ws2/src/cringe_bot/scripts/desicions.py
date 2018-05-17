@@ -37,7 +37,7 @@ def listener(AI):
     rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
     rospy.Subscriber('distressed', IRdata, callback_dist, AI)
     rate = rospy.Rate(1)
-    while not rospy.is_shutdown():
+    while not rospy.is_shutdown() and is not AI.found:
         AI.decide()
         rate.sleep()
     rospy.spin()
@@ -60,10 +60,18 @@ class AI():
         self.pub.publish(string)
 
     def decide(self):
-        if self.forward:
-            self.publish("forward")
+    	prefered_command = ""
+    	if self.has_forward:
+    		prefered_command = "forward"
+    	else if self.has_right:
+    		prefered_command = "rotright"
         else:
-            self.publish("rotright")
+
+        else:
+            self.publish()
+
+    def possible(self, command):
+    	
 
     def get_lidar(self,lidar):
         self.forward = lidar.forward
