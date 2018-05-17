@@ -16,7 +16,7 @@ def callbackward(measurement, classes):
     dist = classes[0]
     if (dist.done):
         dist.done = False
-        rospy.loginfo(rospy.get_caller_id() + 'I heard %s', measurement)
+        #rospy.loginfo(rospy.get_caller_id() + 'I heard %s', measurement)
         #dist.publish_closest(measurement.ranges)
         mini = minimum(measurement.ranges)
         ang = dist.get_angle(measurement.angle_min, measurement.angle_increment, mini[0])
@@ -51,31 +51,6 @@ def listener(Classes):
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
 
-class AI():
-    def __init__(self, limit):
-        self.pub = rospy.Publisher('moves', String, queue_size=1)
-        self.limit = limit
-
-    def find_move(self, dist):
-        move = ""
-        if dist.forward > self.limit:
-            move = "forward"
-        elif dist.left > self.limit:
-            move = "rot_left"
-        elif dist.right > self.limit:
-            move = "rot_right"
-        elif dist.backward > self.limit:
-            move = "backwardward"
-        else:
-            move = "rot_left"
-        return move
-
-    def edit_limit(self, limit):
-        self.limit = limit
-
-    def publish(self, string):
-        self.pub.publish(string)
-
 class Distances():
     def __init__(self, limit):
         self.pub = rospy.Publisher('lidar_data', Lidardistances, queue_size=1)
@@ -90,17 +65,33 @@ class Distances():
         self.angle = int(math.degrees(math.acos(LEG_LENGTH/self.limit)))
 
     def check_moves(self):
-        for i in range(90 + self.angle, 180 + self.angle):
-            if not self.allowed[i] == 1:
+        self.forward = True
+        for i in range(90 + self.angle, 270 - self.angle):
+            if self.allowed[i] == 0:
                 self.forward = False
+                break
 
+        self.backward = True
         for i in range(270 + self.angle, 360):
-            if not self.allowed[i] == 1:
+            if self.allowed[i] == 0:
                 self.backward = False
+                break
 
-        for i in range(0, self.angle):
-            if not self.allowed[i] == 1:
+        for i in range(0, 90 - self.angle):
+            if self.allowed[i] == 0:
                 self.backward = False
+                break
+
+
+        for i in range(70, 110):
+            if self.allowed[i] == 0:
+                self.right = False
+                break
+
+        for i in range(250, 290):
+            if self.allowed[i] == 0:
+                self.left = False
+                break
 
     def set_all(self, values):
         i = 0
@@ -130,3 +121,32 @@ if __name__ == '__main__':
     classes = list()
     classes.append(dist)
     listener(classes)
+
+
+
+
+
+class AI():
+    def __init__(self, limit):
+        self.pub = rospy.Publisher('moves', String, queue_size=1)
+        self.limit = limit
+
+    def find_move(self, dist):
+        move = ""
+        if dist.forward > self.limit:
+            move = "forward"
+        elif dist.left > self.limit:
+            move = "rot_left"
+        elif dist.right > self.limit:
+            move = "rot_right"
+        elif dist.backward > self.limit:
+            move = "backwardward"
+        else:
+            move = "rot_left"
+        return move
+
+    def edit_limit(self, limit):
+        self.limit = limit
+
+    def publish(self, string):
+        self.pub.publish(string)
