@@ -6,11 +6,14 @@ import os
 import rospy
 from std_msgs.msg import String
 from cringe_bot.msg import IRdata
+from cringe_bot.msg import Lidardistances
 import ast
 
-def callback(array, ai):
-    values = ast.literal_eval(array)
-    ai.publish(str(values[0]))
+def callback(lidar, ai):
+    ai.publish(str(lidar.forward))
+    for i in range(90 + self.angle, 180 + self.angle):
+        ai.publish(str(lidar.minimum[i]))
+#    ai.publish(str(lidar.backward))
 
 
 def callback_dist(irdata, ai):
@@ -28,7 +31,7 @@ def listener(AI):
 
     rospy.init_node('listener', anonymous=True)
 
-    rospy.Subscriber('lidar_data', String, callback, AI)
+    rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
     rospy.Subscriber('distressed', IRdata, callback_dist, AI)
     rospy.spin()
 
@@ -40,6 +43,7 @@ class AI():
         self.right = False
         self.ir_forward = [0] * 64
         self.ir_right = [0] * 64
+        self.lidar = ""
 
     def publish(self, string):
         self.pub.publish(string)

@@ -4,25 +4,27 @@
 import operator
 import os
 import rospy
+import math
 from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from cringe_bot.msg import Lidardistances
 
 MIN_VALUE = 0.3
+LEG_LENGTH = 0.15
 
-def callback(measurement, classes):
+def callbackward(measurement, classes):
     dist = classes[0]
-    ai = classes[1]
     if (dist.done):
         dist.done = False
         rospy.loginfo(rospy.get_caller_id() + 'I heard %s', measurement)
         #dist.publish_closest(measurement.ranges)
         mini = minimum(measurement.ranges)
         ang = dist.get_angle(measurement.angle_min, measurement.angle_increment, mini[0])
-        if min_value < 0.3:
+        #if min_value < 0.3:
         values = measurement.ranges
         dist.set_all(values)
-
+        dist.check_moves()
+        dist.publish()
         dist.done = True
     else: 
         pass
@@ -44,7 +46,7 @@ def listener(Classes):
     # run simultaneously.
     rospy.init_node('listener', anonymous=True)
 
-    rospy.Subscriber('scan', LaserScan, callback, Classes)
+    rospy.Subscriber('scan', LaserScan, callbackward, Classes)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
@@ -56,14 +58,14 @@ class AI():
 
     def find_move(self, dist):
         move = ""
-        if dist.front > self.limit:
+        if dist.forward > self.limit:
             move = "forward"
         elif dist.left > self.limit:
             move = "rot_left"
         elif dist.right > self.limit:
             move = "rot_right"
-        elif dist.back > self.limit:
-            move = "backward"
+        elif dist.backward > self.limit:
+            move = "backwardward"
         else:
             move = "rot_left"
         return move
@@ -76,15 +78,29 @@ class AI():
 
 class Distances():
     def __init__(self, limit):
-        self.pub = rospy.Publisher('lidar_data', String, queue_size=1)
+        self.pub = rospy.Publisher('lidar_data', Lidardistances, queue_size=1)
         self.limit = limit
         self.done = True
-        self.back = 0.0
-        self.right = 0.0
-        self.front = 0.0
-        self.left = 0.0
+        self.backward = False
+        self.right = False
+        self.forward = False
+        self.left = False
         self.all = [0.0] * 360
         self.allowed = [1] * 360
+        self.angle = int(math.degrees(math.acos(LEG_LENGTH/self.limit)))
+
+    def check_moves(self):
+        for i in range(90 + self.angle, 180 + self.angle):
+            if not self.allowed[i] == 1:
+                self.forward = False
+
+        for i in range(270 + self.angle, 360):
+            if not self.allowed[i] == 1:
+                self.backward = False
+
+        for i in range(0, self.angle):
+            if not self.allowed[i] == 1:
+                self.backward = False
 
     def set_all(self, values):
         i = 0
@@ -96,21 +112,21 @@ class Distances():
                 else:
                     self.allowed[i] = 1
             i += 1
-        self.back = self.all[0]
+        self.backward = self.all[0]
         self.right = self.all[90]
-        self.front = self.all[180]
+        self.forward = self.all[180]
         self.left = self.all[270]
 
-    def publish(self, string):
-        self.pub.publish(string)
+    def publish(self):
+        ld = Lidardistances(self.forward, self.backward, self.right, self.left, self.allowed, self.limit, self.angle)
+        self.pub.publish(ld)
 
     def get_angle(self, angle_min, angle_inc, index):
         return angle_min + (angle_inc*index)
 
 if __name__ == '__main__':
-    dist = Distances()
-    ai = AI(0.20)
-    xd = list()
-    xd.append(dist)
-    xd.append(ai)
-    listener(xd)
+    dist = Distances(MIN_VALUE)
+    #ai = AI(0.20)
+    classes = list()
+    classes.append(dist)
+    listener(classes)

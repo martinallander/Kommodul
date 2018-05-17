@@ -8,6 +8,10 @@ import math
 from cringe_bot.msg import Sensordata
 from cringe_bot.msg import IRdata
 
+CALIBRATIONS = 10
+TEMP_TRESH = 4.0
+DIST_TRESH = 50.0
+
 def callback(data, args):
 	ir1 = args[0]
 	ir2 = args[1]

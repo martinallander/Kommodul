@@ -1,5 +1,7 @@
-float32 forward
-float32 backward
-float32 right
-float32 left
+bool forward
+bool backward
+bool right
+bool left
 int16[360] minimum
+float32 limit
+int16 angle
