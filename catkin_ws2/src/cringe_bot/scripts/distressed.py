@@ -55,7 +55,7 @@ class IR:
 		self.dist_limit = dist_limit
 		self.hot = False
 		self.in_range = False
-		self.hot_boxes = list()
+		self.hot_boxes = [0]*64
 
 	def calibrate_mean(self, ir):
 		temp_sum = 0.0
@@ -72,12 +72,11 @@ class IR:
 		self.calibrated = True
 
 	def read_ir(self, ir):
-		self.hot_boxes[:] = []
 		for i in range(len(ir)):
 			if ir[i] - self.ir_mean > self.temp_limit:
-				self.hot_boxes.append(1)
+				self.hot_boxes[i] = 1
 			else:
-				self.hot_boxes.append(0)
+				self.hot_boxes[i] = 0
 		if 1 in self.hot_boxes:
 			self.hot = False
 		else:
