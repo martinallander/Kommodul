@@ -7,7 +7,7 @@
   <param name="angle_compensate"    type="bool"   value="true"/>
   </node>
   <node name="lidar_data"           pkg="rplidar_ros"  type="get_lidar.py" />
-  <node name="talk" 	 	    pkg="cringe_bot" type="talker_distressed.py" />
+  <node name="spi"          pkg="cringe_bot" type="spi_node.py" />
   <node name="dist" 		    pkg="cringe_bot" type="distressed.py" />
   <node name="ai" 	  	    pkg="cringe_bot" type="desicions.py" />
 </launch> 

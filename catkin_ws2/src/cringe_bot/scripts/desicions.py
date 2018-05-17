@@ -20,8 +20,6 @@ ROTLEFT = "rotleft"
 def callback(lidar, ai):
     ai.get_lidar(lidar)
     #ai.publish(str(lidar.backward))
-    ai.publish(str(lidar.turn_right))
-    ai.publish(str(lidar.turn_right))
     #ai.publish(str(lidar.minimum))
     #ai.publish(str(lidar.angle))
    # for i in range(90 + lidar.angle, 270 - lidar.angle):
@@ -45,7 +43,7 @@ def listener(AI):
 
     rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
     rospy.Subscriber('distressed', IRdata, callback_dist, AI)
-    rate = rospy.Rate(2)
+    rate = rospy.Rate(1)
     while not rospy.is_shutdown() and not AI.found:
         AI.decide()
         rate.sleep()
@@ -124,7 +122,7 @@ class AI():
     	if self.backward:
     		available_commands.append(BACKWARD) 
     	if self.turn_left:
-    		available_commands.append(FORWARD)
+    		available_commands.append(TURNLEFT)
     	available_commands.append(ROTRIGHT)
     	available_commands.append(ROTLEFT)
     	return available_commands

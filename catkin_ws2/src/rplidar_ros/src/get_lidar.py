@@ -9,8 +9,8 @@ from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from cringe_bot.msg import Lidardistances
 
-MIN_VALUE = 0.5
-LEG_LENGTH = 0.3
+MIN_VALUE = 0.3
+LEG_LENGTH = 0.15
 ANGLE_DRIFT = 10
 
 def callbackward(measurement, classes):
@@ -57,24 +57,31 @@ class Distances():
         self.pub = rospy.Publisher('lidar_data', Lidardistances, queue_size=1)
         self.limit = limit
         self.done = True
-        self.backward = False
-        self.right = False
-        self.forward = False
-        self.left = False
-        self.turn_right = False
-        self.turn_left = False
+        self.backward = True
+        self.right = True
+        self.forward = True
+        self.left = True
+        self.turn_right = True
+        self.turn_left = True
         self.all = [0.0] * 360
         self.allowed = [1] * 360
         self.angle = int(math.degrees(math.acos(LEG_LENGTH/self.limit)))
 
     def check_moves(self):
+        self.backward = True
+        self.right = True
         self.forward = True
+        self.left = True
+        self.turn_right = True
+        self.turn_left = True
         for i in range(90 - ANGLE_DRIFT + self.angle, 270 + ANGLE_DRIFT - self.angle):
             if self.allowed[i] == 0:
-                if i < 90 - ANGLE_DRIFT + self.angle:
+                if i < 90  + self.angle:
                     self.turn_right = False
-                elif i > 270 + ANGLE_DRIFT - self.angle:
+                    break
+                elif i > 270  - self.angle:
                     self.turn_left = False
+                    break
                 else:
                     if i > 90 + ANGLE_DRIFT + self.angle:
                         self.forward = False
@@ -90,8 +97,8 @@ class Distances():
                         self.forward = False
                         self.turn_left = False
                         self.turn_right = False
+                    break
 
-        self.backward = True
         for i in range(270 + self.angle, 360):
             if self.allowed[i] == 0:
                 self.backward = False
@@ -142,27 +149,27 @@ if __name__ == '__main__':
 
 
 
-class AI():
-    def __init__(self, limit):
-        self.pub = rospy.Publisher('moves', String, queue_size=1)
-        self.limit = limit
+# class AI():
+#     def __init__(self, limit):
+#         self.pub = rospy.Publisher('moves', String, queue_size=1)
+#         self.limit = limit
 
-    def find_move(self, dist):
-        move = ""
-        if dist.forward > self.limit:
-            move = "forward"
-        elif dist.left > self.limit:
-            move = "rot_left"
-        elif dist.right > self.limit:
-            move = "rot_right"
-        elif dist.backward > self.limit:
-            move = "backwardward"
-        else:
-            move = "rot_left"
-        return move
+#     def find_move(self, dist):
+#         move = ""
+#         if dist.forward > self.limit:
+#             move = "forward"
+#         elif dist.left > self.limit:
+#             move = "rot_left"
+#         elif dist.right > self.limit:
+#             move = "rot_right"
+#         elif dist.backward > self.limit:
+#             move = "backwardward"
+#         else:
+#             move = "rot_left"
+#         return move
 
-    def edit_limit(self, limit):
-        self.limit = limit
+#     def edit_limit(self, limit):
+#         self.limit = limit
 
-    def publish(self, string):
-        self.pub.publish(string)
+#     def publish(self, string):
+#         self.pub.publish(string)
