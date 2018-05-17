@@ -60,6 +60,7 @@ class Distances():
         self.right = False
         self.forward = False
         self.left = False
+        self.turn_left = False
         self.all = [0.0] * 360
         self.allowed = [1] * 360
         self.angle = int(math.degrees(math.acos(LEG_LENGTH/self.limit)))
@@ -82,7 +83,6 @@ class Distances():
                 self.backward = False
                 break
 
-
         for i in range(70, 110):
             if self.allowed[i] == 0:
                 self.right = False
@@ -92,6 +92,17 @@ class Distances():
             if self.allowed[i] == 0:
                 self.left = False
                 break
+
+        for i in range(80 + self.angle, 260 - self.angle):
+            if self.allowed[i] == 0:
+                self.turn_right = False
+                break
+
+        for i in range(100 + self.angle, 280 - self.angle):
+            if self.allowed[i] == 0:
+                self.turn_left = False
+                break
+
 
     def set_all(self, values):
         i = 0
@@ -103,13 +114,9 @@ class Distances():
                 else:
                     self.allowed[i] = 1
             i += 1
-        self.backward = self.all[0]
-        self.right = self.all[90]
-        self.forward = self.all[180]
-        self.left = self.all[270]
 
     def publish(self):
-        ld = Lidardistances(self.forward, self.backward, self.right, self.left, self.allowed, self.limit, self.angle)
+        ld = Lidardistances(self.forward, self.backward, self.right, self.left, self.turn_right, self.turn_left, self.allowed, self.limit, self.angle)
         self.pub.publish(ld)
 
     def get_angle(self, angle_min, angle_inc, index):
