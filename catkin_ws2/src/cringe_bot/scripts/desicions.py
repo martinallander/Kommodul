@@ -63,7 +63,7 @@ class AI():
         if self.forward:
             self.publish("forward")
         else:
-            self.publish("rot_right")
+            self.publish("rotright")
 
     def get_lidar(self,lidar):
         self.forward = lidar.forward
