@@ -77,7 +77,7 @@ class AI():
     		if move in available_commands:
     			command = move
     	#self.publish(str(prefered_commands))
-    	self.publish(str(available_commands))
+    	self.publish(command)
 
     def camera_placement(self, ir):
     	placement = list()
