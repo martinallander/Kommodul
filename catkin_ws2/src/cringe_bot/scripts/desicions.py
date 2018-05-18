@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Software License Agreement (BSD License)
 
+import random
 import operator
 import os
 import rospy
@@ -51,7 +52,7 @@ def listener(AI):
 class AI():
 	def __init__(self):
 		self.pub = rospy.Publisher('spi_commands', String, queue_size=1)
-		self.pubfound = rospy.Publisher('moves', String, queue_size=1)
+		self.pubfound = rospy.Publisher('info', String, queue_size=1)
 		self.forward = False
 		self.backward = False
 		self.left = False
@@ -64,6 +65,7 @@ class AI():
 		self.has_right = False
 		self.ir_forward = [0] * 64
 		self.ir_right = [0] * 64
+		self.prev = ""
 		self.queue = list()
 
 	def publish(self, string):
@@ -85,13 +87,16 @@ class AI():
 		preferences.append(FORWARD)
 		preferences.append(TURNLEFT)
 		preferences.append(TURNRIGHT)
+		if self.prev == ROTRIGHT or ROTLEFT:
+			preferences.append(self.prev)
+		if self.right and self.left
+			
 		if self.right:
 			preferences.append(ROTRIGHT)
-		elif self.left:
+		if self.left:
 			preferences.append(ROTLEFT)
 		else:
 			preferences.append(ROTRIGHT)
-			preferences.append(ROTLEFT)
 		preferences.append(BACKWARD)
 		return preferences
 
@@ -132,6 +137,7 @@ class AI():
 				break
 		#self.publish(str(prefered_commands))
 		self.publish(command)
+		self.prev = command
 		self.pubdist(str(self.found))
 		self.pubdist(str(available_commands))
 

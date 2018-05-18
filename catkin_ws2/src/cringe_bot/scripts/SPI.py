@@ -125,9 +125,9 @@ class SPI:
 		elif command == "backward":
 			self.styr.writebytes([0x02])
 		elif command == "rotleft":
-			self.styr.writebytes([0x03])
-		elif command == "rotright":
 			self.styr.writebytes([0x04])
+		elif command == "rotright":
+			self.styr.writebytes([0x03])
 		elif command == "turnleft":
 			self.styr.writebytes([0x05])
 		elif command == "turnright":
