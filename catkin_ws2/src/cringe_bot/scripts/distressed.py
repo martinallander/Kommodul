@@ -115,8 +115,8 @@ if __name__ == '__main__':
 	time.sleep(1)
 	temperature_threshold = 4.0
 	distance_treshold = 50.0 
-	ir = IR(CAlIBRATIONS, TEMP_TRESH, DIST_TRESH)
-	ir_2 = IR(CAlIBRATIONS, TEMP_TRESH)
+	ir = IR(CALIBRATIONS, TEMP_TRESH, DIST_TRESH)
+	ir_2 = IR(CALIBRATIONS, TEMP_TRESH)
 	dp = Distressed_publisher()
 	args = list()
 	args.append(ir)

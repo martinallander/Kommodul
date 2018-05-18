@@ -45,8 +45,8 @@ def listener(AI):
 	rospy.Subscriber('distressed', IRdata, callback_dist, AI)
 	rate = rospy.Rate(0.5)
 	while not rospy.is_shutdown():
-		AI.pubinfo()
-		rate.sleep()
+		#AI.pubinfo()
+		#rate.sleep()
 		AI.pubinfo()
 		AI.decide()
 		rate.sleep()
@@ -78,7 +78,6 @@ class AI():
 		self.pubfound.publish(string)
 
 	def pubinfo(self):
-		self.pubdist(str(available_commands))
 		self.pubdist("Found: " + str(self.found))
 		self.pubdist("Hot forward: " + str(self.has_forward))
 		self.pubdist("Hot right : " + str(self.has_right))
@@ -159,6 +158,7 @@ class AI():
 				break
 		#self.publish(str(prefered_commands))
 		self.publish(command)
+		self.pubdist(str(available_commands))
 		self.prev = command
 
 	def get_lidar(self, lidar):
