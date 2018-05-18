@@ -73,10 +73,13 @@ class IR:
 
 	def read_ir(self, ir):
 		for i in range(len(ir)):
-			if ir[i] - self.ir_mean > self.temp_limit:
-				self.hot_boxes[i] = 1
-			else:
+			if (i % 8 == 5) or (i % 8 == 6) or (i % 8 == 7):
 				self.hot_boxes[i] = 0
+			else:
+				if ir[i] - self.ir_mean > self.temp_limit:
+					self.hot_boxes[i] = 1
+				else:
+					self.hot_boxes[i] = 0
 		if 1 in self.hot_boxes:
 			self.hot = False
 		else:

@@ -51,6 +51,7 @@ def listener(AI):
 class AI():
     def __init__(self):
         self.pub = rospy.Publisher('spi_commands', String, queue_size=1)
+		self.pubfound = rospy.Publisher('moves', String, queue_size=1)
         self.forward = False
         self.backward = False
         self.left = False
@@ -67,6 +68,9 @@ class AI():
 
     def publish(self, string):
         self.pub.publish(string)
+	
+	def pubdist(self, string):
+        self.pubfound.publish(string)
 
     def decide(self):
     	command = ""
@@ -77,8 +81,9 @@ class AI():
     			command = prefered_commands[i]
 			break
     	#self.publish(str(prefered_commands))
-	self.publish(str(available_commands))
     	self.publish(command)
+		self.pubfound(str(self.found))
+		self.pubfound(str(available_commands))
 
     def camera_placement(self, ir):
     	placement = list()
@@ -108,10 +113,14 @@ class AI():
     	preferences.append(FORWARD)
     	preferences.append(TURNLEFT)
     	preferences.append(TURNRIGHT)
-    	#preferences.append(BACKWARD)
-    	preferences.append(ROTRIGHT)
-    	preferences.append(ROTLEFT)
-	preferences.append(BACKWARD)
+		if self.right:
+    		preferences.append(ROTRIGHT)
+		elif self.left:
+    		preferences.append(ROTLEFT)
+		else:
+			preferences.append(ROTRIGHT)
+			preferences.append(ROTLEFT)
+		preferences.append(BACKWARD)
     	return preferences
 
 
