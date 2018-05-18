@@ -151,8 +151,10 @@ class AI():
 		#self.publish(str(prefered_commands))
 		self.publish(command)
 		self.prev = command
-		self.pubdist(str(self.found))
 		self.pubdist(str(available_commands))
+		self.pubdist("Found: " + str(self.found))
+		self.pubdist("Hot forward: " + str(self.has_forward))
+		self.pubdist("Hot right : " + str(self.has_right))
 
 	def get_lidar(self, lidar):
 		self.forward = lidar.forward

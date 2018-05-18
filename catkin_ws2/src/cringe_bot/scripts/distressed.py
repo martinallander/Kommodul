@@ -18,7 +18,7 @@ def callback(data, args):
 	pub = args[2]
 	ir_read(ir, data.ir)
 	ir_read(ir2, data.ir_right)
-	if (data.dist - ir1.dist_limit) < 0:
+	if (data.dist - ir1.dist_limit) < 0 and ir1.hot:
 		found = True
 	else:
 		found = False
