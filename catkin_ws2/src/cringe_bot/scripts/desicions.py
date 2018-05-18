@@ -157,7 +157,7 @@ class AI():
 				command = prefered_commands[i]
 				break
 		#self.publish(str(prefered_commands))
-		self.publish(command)
+		#self.publish(command)
 		self.pubdist(str(available_commands))
 		self.prev = command
 
