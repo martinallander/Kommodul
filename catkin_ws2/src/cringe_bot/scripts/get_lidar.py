@@ -76,17 +76,17 @@ class Distances():
         self.turn_left = True
         for i in range(90 + self.angle, 270 - self.angle):
             if self.allowed[i] == 0:
-                self.forward = False
+				self.forward = False
 				break
 
-		for i in range(90 - ANGLE_DRIFT + self.angle, 270 - ANGLE_DRIFT - self.angle):
+        for i in range(90 - ANGLE_DRIFT + self.angle, 270 - ANGLE_DRIFT - self.angle):
             if self.allowed[i] == 0:
-                self.turn_right = False
+				self.turn_right = False
 				break
 
-		for i in range(90 + ANGLE_DRIFT + self.angle, 270 + ANGLE_DRIFT + self.angle):
+        for i in range(90 + ANGLE_DRIFT + self.angle, 270 + ANGLE_DRIFT - self.angle):
             if self.allowed[i] == 0:
-                self.turn_left = False
+				self.turn_left = False
 				break
 
         for i in range(0, 90 - self.angle):

@@ -10,4 +10,8 @@
   <node name="spi"          pkg="cringe_bot" type="spi_node.py" />
   <node name="dist" 		    pkg="cringe_bot" type="distressed.py" />
   <node name="ai" 	  	    pkg="cringe_bot" type="desicions.py" />
+
+  <include file="$(find rplidar_ros)/launch/theoslam.launch">
+  </include>
+
 </launch> 
