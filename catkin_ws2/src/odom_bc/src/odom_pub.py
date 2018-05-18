@@ -31,11 +31,11 @@ def callback(data, coord):
 	elif data.data == "rotleft":
                 delta_x = 0.0 * cos(coord.th) + 0.0 * sin(coord.th)
 		delta_y = 0.0 * sin(coord.th) - 0.0 * cos(coord.th) 
-		delta_th = 30 * pi /180
+		delta_th = 25 * pi /180
 	elif data.data == "rotright":
 		delta_x = 0.0 * cos(coord.th) - 0.0 * sin(coord.th)
 		delta_y = 0.0 * sin(coord.th) + 0.0 * cos(coord.th)
-		delta_th = -30 * pi /180
+		delta_th = -25 * pi /180
 	elif data.data == "turnleft":
 		delta_x = 0.081 * cos(coord.th) - 0.00925 * sin(coord.th)
 		delta_y = 0.081 * sin(coord.th) + 0.00925 * cos(coord.th)

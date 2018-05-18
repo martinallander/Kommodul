@@ -84,9 +84,9 @@ class AI():
 				preferences.append(TURNLEFT)
 			if "right" in placement:
 				preferences.append(TURNRIGHT)
-		if self.has_right:
-			preferences.append(TURNRIGHT)
-			self.queue.append(TURNRIGHT)
+		#if self.has_right:
+			#preferences.append(TURNRIGHT)
+			#self.queue.append(TURNRIGHT)
 		preferences.append(FORWARD)
 		preferences.append(TURNLEFT)
 		preferences.append(TURNRIGHT)

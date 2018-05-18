@@ -27,17 +27,21 @@ struct Sensordata_
     : acc()
     , angle()
     , ir()
+    , ir_right()
     , dist(0.0)  {
       acc.assign(0.0);
 
       angle.assign(0.0);
 
       ir.assign(0.0);
+
+      ir_right.assign(0.0);
   }
   Sensordata_(const ContainerAllocator& _alloc)
     : acc()
     , angle()
     , ir()
+    , ir_right()
     , dist(0.0)  {
   (void)_alloc;
       acc.assign(0.0);
@@ -45,6 +49,8 @@ struct Sensordata_
       angle.assign(0.0);
 
       ir.assign(0.0);
+
+      ir_right.assign(0.0);
   }
 
 
@@ -57,6 +63,9 @@ struct Sensordata_
 
    typedef boost::array<float, 64>  _ir_type;
   _ir_type ir;
+
+   typedef boost::array<float, 64>  _ir_right_type;
+  _ir_right_type ir_right;
 
    typedef float _dist_type;
   _dist_type dist;
@@ -139,12 +148,12 @@ struct MD5Sum< ::cringe_bot::Sensordata_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "8c229e2648232c4169508279d6fdeb33";
+    return "b7176edc5b6a9cf4a3ea66544dcffbb0";
   }
 
   static const char* value(const ::cringe_bot::Sensordata_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x8c229e2648232c41ULL;
-  static const uint64_t static_value2 = 0x69508279d6fdeb33ULL;
+  static const uint64_t static_value1 = 0xb7176edc5b6a9cf4ULL;
+  static const uint64_t static_value2 = 0xa3ea66544dcffbb0ULL;
 };
 
 template<class ContainerAllocator>
@@ -166,6 +175,7 @@ struct Definition< ::cringe_bot::Sensordata_<ContainerAllocator> >
     return "float32[3] acc\n\
 float32[3] angle\n\
 float32[64] ir\n\
+float32[64] ir_right\n\
 float32 dist\n\
 ";
   }
@@ -188,6 +198,7 @@ namespace serialization
       stream.next(m.acc);
       stream.next(m.angle);
       stream.next(m.ir);
+      stream.next(m.ir_right);
       stream.next(m.dist);
     }
 
@@ -224,6 +235,12 @@ struct Printer< ::cringe_bot::Sensordata_<ContainerAllocator> >
     {
       s << indent << "  ir[" << i << "]: ";
       Printer<float>::stream(s, indent + "  ", v.ir[i]);
+    }
+    s << indent << "ir_right[]" << std::endl;
+    for (size_t i = 0; i < v.ir_right.size(); ++i)
+    {
+      s << indent << "  ir_right[" << i << "]: ";
+      Printer<float>::stream(s, indent + "  ", v.ir_right[i]);
     }
     s << indent << "dist: ";
     Printer<float>::stream(s, indent + "  ", v.dist);

@@ -21,6 +21,7 @@ class Sensordata {
       this.acc = null;
       this.angle = null;
       this.ir = null;
+      this.ir_right = null;
       this.dist = null;
     }
     else {
@@ -41,6 +42,12 @@ class Sensordata {
       }
       else {
         this.ir = new Array(64).fill(0);
+      }
+      if (initObj.hasOwnProperty('ir_right')) {
+        this.ir_right = initObj.ir_right
+      }
+      else {
+        this.ir_right = new Array(64).fill(0);
       }
       if (initObj.hasOwnProperty('dist')) {
         this.dist = initObj.dist
@@ -71,6 +78,12 @@ class Sensordata {
     }
     // Serialize message field [ir]
     bufferOffset = _arraySerializer.float32(obj.ir, buffer, bufferOffset, 64);
+    // Check that the constant length array field [ir_right] has the right length
+    if (obj.ir_right.length !== 64) {
+      throw new Error('Unable to serialize array field ir_right - length must be 64')
+    }
+    // Serialize message field [ir_right]
+    bufferOffset = _arraySerializer.float32(obj.ir_right, buffer, bufferOffset, 64);
     // Serialize message field [dist]
     bufferOffset = _serializer.float32(obj.dist, buffer, bufferOffset);
     return bufferOffset;
@@ -86,13 +99,15 @@ class Sensordata {
     data.angle = _arrayDeserializer.float32(buffer, bufferOffset, 3)
     // Deserialize message field [ir]
     data.ir = _arrayDeserializer.float32(buffer, bufferOffset, 64)
+    // Deserialize message field [ir_right]
+    data.ir_right = _arrayDeserializer.float32(buffer, bufferOffset, 64)
     // Deserialize message field [dist]
     data.dist = _deserializer.float32(buffer, bufferOffset);
     return data;
   }
 
   static getMessageSize(object) {
-    return 284;
+    return 540;
   }
 
   static datatype() {
@@ -102,7 +117,7 @@ class Sensordata {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '8c229e2648232c4169508279d6fdeb33';
+    return 'b7176edc5b6a9cf4a3ea66544dcffbb0';
   }
 
   static messageDefinition() {
@@ -111,6 +126,7 @@ class Sensordata {
     float32[3] acc
     float32[3] angle
     float32[64] ir
+    float32[64] ir_right
     float32 dist
     
     `;
@@ -141,6 +157,13 @@ class Sensordata {
     }
     else {
       resolved.ir = new Array(64).fill(0)
+    }
+
+    if (msg.ir_right !== undefined) {
+      resolved.ir_right = msg.ir_right;
+    }
+    else {
+      resolved.ir_right = new Array(64).fill(0)
     }
 
     if (msg.dist !== undefined) {

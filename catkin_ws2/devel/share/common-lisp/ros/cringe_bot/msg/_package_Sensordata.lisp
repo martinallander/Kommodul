@@ -5,6 +5,8 @@
           ANGLE
           IR-VAL
           IR
+          IR_RIGHT-VAL
+          IR_RIGHT
           DIST-VAL
           DIST
 ))

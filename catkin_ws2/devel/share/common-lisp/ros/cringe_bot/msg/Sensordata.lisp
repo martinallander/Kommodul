@@ -22,6 +22,11 @@
     :initarg :ir
     :type (cl:vector cl:float)
    :initform (cl:make-array 64 :element-type 'cl:float :initial-element 0.0))
+   (ir_right
+    :reader ir_right
+    :initarg :ir_right
+    :type (cl:vector cl:float)
+   :initform (cl:make-array 64 :element-type 'cl:float :initial-element 0.0))
    (dist
     :reader dist
     :initarg :dist
@@ -52,6 +57,11 @@
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader cringe_bot-msg:ir-val is deprecated.  Use cringe_bot-msg:ir instead.")
   (ir m))
 
+(cl:ensure-generic-function 'ir_right-val :lambda-list '(m))
+(cl:defmethod ir_right-val ((m <Sensordata>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader cringe_bot-msg:ir_right-val is deprecated.  Use cringe_bot-msg:ir_right instead.")
+  (ir_right m))
+
 (cl:ensure-generic-function 'dist-val :lambda-list '(m))
 (cl:defmethod dist-val ((m <Sensordata>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader cringe_bot-msg:dist-val is deprecated.  Use cringe_bot-msg:dist instead.")
@@ -76,6 +86,12 @@
     (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream)))
    (cl:slot-value msg 'ir))
+  (cl:map cl:nil #'(cl:lambda (ele) (cl:let ((bits (roslisp-utils:encode-single-float-bits ele)))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream)))
+   (cl:slot-value msg 'ir_right))
   (cl:let ((bits (roslisp-utils:encode-single-float-bits (cl:slot-value msg 'dist))))
     (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
@@ -111,6 +127,15 @@
       (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
     (cl:setf (cl:aref vals i) (roslisp-utils:decode-single-float-bits bits)))))
+  (cl:setf (cl:slot-value msg 'ir_right) (cl:make-array 64))
+  (cl:let ((vals (cl:slot-value msg 'ir_right)))
+    (cl:dotimes (i 64)
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+    (cl:setf (cl:aref vals i) (roslisp-utils:decode-single-float-bits bits)))))
     (cl:let ((bits 0))
       (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
@@ -127,21 +152,22 @@
   "cringe_bot/Sensordata")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<Sensordata>)))
   "Returns md5sum for a message object of type '<Sensordata>"
-  "8c229e2648232c4169508279d6fdeb33")
+  "b7176edc5b6a9cf4a3ea66544dcffbb0")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'Sensordata)))
   "Returns md5sum for a message object of type 'Sensordata"
-  "8c229e2648232c4169508279d6fdeb33")
+  "b7176edc5b6a9cf4a3ea66544dcffbb0")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<Sensordata>)))
   "Returns full string definition for message of type '<Sensordata>"
-  (cl:format cl:nil "float32[3] acc~%float32[3] angle~%float32[64] ir~%float32 dist~%~%~%"))
+  (cl:format cl:nil "float32[3] acc~%float32[3] angle~%float32[64] ir~%float32[64] ir_right~%float32 dist~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'Sensordata)))
   "Returns full string definition for message of type 'Sensordata"
-  (cl:format cl:nil "float32[3] acc~%float32[3] angle~%float32[64] ir~%float32 dist~%~%~%"))
+  (cl:format cl:nil "float32[3] acc~%float32[3] angle~%float32[64] ir~%float32[64] ir_right~%float32 dist~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <Sensordata>))
   (cl:+ 0
      0 (cl:reduce #'cl:+ (cl:slot-value msg 'acc) :key #'(cl:lambda (ele) (cl:declare (cl:ignorable ele)) (cl:+ 4)))
      0 (cl:reduce #'cl:+ (cl:slot-value msg 'angle) :key #'(cl:lambda (ele) (cl:declare (cl:ignorable ele)) (cl:+ 4)))
      0 (cl:reduce #'cl:+ (cl:slot-value msg 'ir) :key #'(cl:lambda (ele) (cl:declare (cl:ignorable ele)) (cl:+ 4)))
+     0 (cl:reduce #'cl:+ (cl:slot-value msg 'ir_right) :key #'(cl:lambda (ele) (cl:declare (cl:ignorable ele)) (cl:+ 4)))
      4
 ))
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <Sensordata>))
@@ -150,5 +176,6 @@
     (cl:cons ':acc (acc msg))
     (cl:cons ':angle (angle msg))
     (cl:cons ':ir (ir msg))
+    (cl:cons ':ir_right (ir_right msg))
     (cl:cons ':dist (dist msg))
 ))
