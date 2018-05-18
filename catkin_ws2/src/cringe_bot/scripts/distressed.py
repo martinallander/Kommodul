@@ -8,7 +8,7 @@ import math
 from cringe_bot.msg import Sensordata
 from cringe_bot.msg import IRdata
 
-CALIBRATIONS = 100
+CALIBRATIONS = 1000
 TEMP_TRESH = 4.0
 DIST_TRESH = 50.0
 
@@ -63,7 +63,6 @@ class IR:
 			temp_sum += temp
 		self.first_temps += temp_sum/64
 		self.reads -= 1
-		print(self.reads)
 		if self.reads == 0:
 			self.calc_mean()
 
@@ -81,9 +80,9 @@ class IR:
 				else:
 					self.hot_boxes[i] = 0
 		if 1 in self.hot_boxes:
-			self.hot = False
-		else:
 			self.hot = True
+		else:
+			self.hot = False
 
 	def format_grid(self):
 		boxes = list()
@@ -113,11 +112,11 @@ def zero_in_array(values):
 		return False
 
 if __name__ == '__main__':
-	calibrations = 10
+	time.sleep(5)
 	temperature_threshold = 4.0
 	distance_treshold = 50.0 
-	ir = IR(calibrations, temperature_threshold, distance_treshold)
-	ir_2 = IR(calibrations, temperature_threshold)
+	ir = IR(CAlIBRATIONS, TEMP_TRESH, DIST_TRESH)
+	ir_2 = IR(CAlIBRATIONS, TEMP_TRESH)
 	dp = Distressed_publisher()
 	args = list()
 	args.append(ir)
