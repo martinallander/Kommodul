@@ -8,7 +8,7 @@ import math
 from cringe_bot.msg import Sensordata
 from cringe_bot.msg import IRdata
 
-CALIBRATIONS = 1000
+CALIBRATIONS = 15
 TEMP_TRESH = 4.0
 DIST_TRESH = 50.0
 
@@ -113,8 +113,6 @@ def zero_in_array(values):
 
 if __name__ == '__main__':
 	time.sleep(1)
-	temperature_threshold = 4.0
-	distance_treshold = 50.0 
 	ir = IR(CALIBRATIONS, TEMP_TRESH, DIST_TRESH)
 	ir_2 = IR(CALIBRATIONS, TEMP_TRESH)
 	dp = Distressed_publisher()
@@ -122,24 +120,21 @@ if __name__ == '__main__':
 	args.append(ir)
 	args.append(ir_2)
 	args.append(dp)
-	listener(args)
-	# init_values = [20.0]*64
-	# hot_values = init_values
-	# hot_values[20] = 25.0
-	# dist = 80.0
-	# close_dist = 30.0
-	# i = 0
-	# while i < 11:
-	# 	ir.calibrate_mean(init_values)
-	# 	i += 1#
-	# if ir.calibrated:
-	# 	print("Cal")
-	# 	ir.read_ir(hot_values)
-	# 	ir.read_dist(close_dist)
-	# 	grid = ir.format_grid()
-	# 	print(grid)
-	# if ir.in_range and ir.hot:
-	# 	print("Yes")
-	# else:
-	# 	print("No")
-    #else:
+	#listener(args)
+	#init_values = [20.0]*64
+	#hot_values = init_values
+	#hot_values[7] = 25.0
+	#dist = 80.0
+	#close_dist = 30.0
+	#i = 0
+	#while i < CALIBRATIONS:
+	#	ir.calibrate_mean(init_values)
+	#	i += 1
+	#if ir.calibrated:
+	#	ir.read_ir(hot_values)
+	#	ir.read_dist(close_dist)
+	#	print(str(ir.hot_boxes))
+	#if ir.in_range and ir.hot:
+	#	print("Yes")
+	#else:
+	#	print("No")
