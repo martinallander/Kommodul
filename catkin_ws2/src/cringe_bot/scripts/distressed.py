@@ -112,7 +112,7 @@ def zero_in_array(values):
 		return False
 
 if __name__ == '__main__':
-	time.sleep(5)
+	time.sleep(1)
 	temperature_threshold = 4.0
 	distance_treshold = 50.0 
 	ir = IR(CAlIBRATIONS, TEMP_TRESH, DIST_TRESH)
