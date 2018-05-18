@@ -21,21 +21,21 @@ def callback(data, coord):
 	vx = 5
 
 	if data.data == "forward":
-		delta_x = 0.0745625 * cos(coord.th) + 0.0015625 * sin(coord.th)
-		delta_y = 0.0745625 * sin(coord.th) - 0.0015625 * cos(coord.th)
-		delta_th = 0.5625 * pi /180
+		delta_x = 0.08 * cos(coord.th) + 0.0 * sin(coord.th)
+		delta_y = 0.08 * sin(coord.th) - 0.0 * cos(coord.th)
+		delta_th = -0.05 * pi /180
 	elif data.data == "backward":
 		delta_x = -0.07475 * cos(coord.th) + 0.0011875 * sin(coord.th)
 		delta_y = -0.07475 * sin(coord.th) - 0.0011875 * cos(coord.th)
 		delta_th = 0.46875 * pi /180
 	elif data.data == "rotleft":
-                delta_x = 0.0035625 * cos(coord.th) + 0.021625 * sin(coord.th)
-		delta_y = 0.0035625 * sin(coord.th) - 0.021625 * cos(coord.th) 
-		delta_th = 13.625 * pi /180
+                delta_x = 0.0 * cos(coord.th) + 0.0 * sin(coord.th)
+		delta_y = 0.0 * sin(coord.th) - 0.0 * cos(coord.th) 
+		delta_th = 30 * pi /180
 	elif data.data == "rotright":
-		delta_x = 0.0228125 * cos(coord.th) - 0.0024375 * sin(coord.th)
-		delta_y = 0.0228125 * sin(coord.th) + 0.0024375 * cos(coord.th)
-		delta_th = -16.125 * pi /180
+		delta_x = 0.0 * cos(coord.th) - 0.0 * sin(coord.th)
+		delta_y = 0.0 * sin(coord.th) + 0.0 * cos(coord.th)
+		delta_th = -30 * pi /180
 	elif data.data == "turnleft":
 		delta_x = 0.081 * cos(coord.th) - 0.00925 * sin(coord.th)
 		delta_y = 0.081 * sin(coord.th) + 0.00925 * cos(coord.th)

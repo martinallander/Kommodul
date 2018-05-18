@@ -84,19 +84,30 @@ class AI():
 				preferences.append(TURNLEFT)
 			if "right" in placement:
 				preferences.append(TURNRIGHT)
+		if self.has_right:
+			preferences.append(TURNRIGHT)
+			self.queue.append(TURNRIGHT)
 		preferences.append(FORWARD)
 		preferences.append(TURNLEFT)
 		preferences.append(TURNRIGHT)
 		if self.prev == ROTRIGHT or ROTLEFT:
 			preferences.append(self.prev)
-		if self.right and self.left
-			
+		if self.right and self.left:
+			pick = random.choice([True, False])
+			if pick:
+				preferences.append(ROTRIGHT)
+			else:
+				preferences.append(ROTLEFT)
 		if self.right:
 			preferences.append(ROTRIGHT)
 		if self.left:
 			preferences.append(ROTLEFT)
 		else:
-			preferences.append(ROTRIGHT)
+			pick = random.choice([True, False])
+			if pick:
+				preferences.append(ROTRIGHT)
+			else:
+				preferences.append(ROTLEFT)
 		preferences.append(BACKWARD)
 		return preferences
 
@@ -131,6 +142,8 @@ class AI():
 		command = ""
 		available_commands = self.available()
 		prefered_commands = self.prefered()
+		if not len(self.queue) == 0 and self.prev == ROTRIGHT:
+			prefered_commands.insert(0, self.queue.pop(0))
 		for i in range(len(prefered_commands)):
 			if prefered_commands[i] in available_commands:
 				command = prefered_commands[i]
