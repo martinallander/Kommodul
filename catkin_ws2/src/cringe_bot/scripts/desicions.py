@@ -38,130 +38,125 @@ def mini_range(values):
 
 def listener(AI):
 
-    rospy.init_node('listener', anonymous=True)
+	rospy.init_node('listener', anonymous=True)
 
-    rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
-    rospy.Subscriber('distressed', IRdata, callback_dist, AI)
-    rate = rospy.Rate(0.3)
-    while not rospy.is_shutdown():
-        AI.decide()
-        rate.sleep()
-    rospy.spin()
+	rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
+	rospy.Subscriber('distressed', IRdata, callback_dist, AI)
+	rate = rospy.Rate(0.5)
+	while not rospy.is_shutdown():
+		AI.decide()
+		rate.sleep()
+	rospy.spin()
 
 class AI():
-    def __init__(self):
-        self.pub = rospy.Publisher('spi_commands', String, queue_size=1)
+	def __init__(self):
+		self.pub = rospy.Publisher('spi_commands', String, queue_size=1)
 		self.pubfound = rospy.Publisher('moves', String, queue_size=1)
-        self.forward = False
-        self.backward = False
-        self.left = False
-        self.right = False
-        self.found = False
-        self.turn_right = False
-        self.turn_left = False
-        self.allowed = [0] * 64
-        self.has_forward = False
-        self.has_right = False
-        self.ir_forward = [0] * 64
-        self.ir_right = [0] * 64
-        self.queue = list()
+		self.forward = False
+		self.backward = False
+		self.left = False
+		self.right = False
+		self.found = False
+		self.turn_right = False
+		self.turn_left = False
+		self.allowed = [0] * 64
+		self.has_forward = False
+		self.has_right = False
+		self.ir_forward = [0] * 64
+		self.ir_right = [0] * 64
+		self.queue = list()
 
-    def publish(self, string):
-        self.pub.publish(string)
+	def publish(self, string):
+		self.pub.publish(string)
 	
 	def pubdist(self, string):
-        self.pubfound.publish(string)
+		self.pubfound.publish(string)
 
-    def decide(self):
-    	command = ""
-    	available_commands = self.possible()
-    	prefered_commands = self.prefered()
-    	for i in range(len(prefered_commands)):
-    		if prefered_commands[i] in available_commands:
-    			command = prefered_commands[i]
-			break
-    	#self.publish(str(prefered_commands))
-    	self.publish(command)
-		self.pubfound(str(self.found))
-		self.pubfound(str(available_commands))
-
-    def camera_placement(self, ir):
-    	placement = list()
-    	for i in range(15,47):
-    		if ir[i] == 1:
-    			placement.append("middle")
-    	for i in range(47,63):
-    		if ir[i] == 1:
-    			placement.append("left")
-    	for i in range(0,15):
-    		if ir[i] == 1:
-    			placement.append("right")
-    	return placement
-
-    def prefered(self):
-    	preferences = list()
-    	if self.has_forward:
-    		placement = self.camera_placement(self.ir_forward)
-    		if "middle" in placement:
-    			preferences.append(FORWARD)
-    		if "left" in placement:
-    			preferences.append(TURNLEFT)
-    		if "right" in placement:
-    			preferences.append(TURNRIGHT)
-    	#if self.has_right:
-    	#		preferences.append(ROTRIGHT)
-    	preferences.append(FORWARD)
-    	preferences.append(TURNLEFT)
-    	preferences.append(TURNRIGHT)
+	def prefered(self):
+		preferences = list()
+		if self.has_forward:
+			placement = self.camera_placement(self.ir_forward)
+			if "middle" in placement:
+				preferences.append(FORWARD)
+			if "left" in placement:
+				preferences.append(TURNLEFT)
+			if "right" in placement:
+				preferences.append(TURNRIGHT)
+		preferences.append(FORWARD)
+		preferences.append(TURNLEFT)
+		preferences.append(TURNRIGHT)
 		if self.right:
-    		preferences.append(ROTRIGHT)
+			preferences.append(ROTRIGHT)
 		elif self.left:
-    		preferences.append(ROTLEFT)
+			preferences.append(ROTLEFT)
 		else:
 			preferences.append(ROTRIGHT)
 			preferences.append(ROTLEFT)
 		preferences.append(BACKWARD)
-    	return preferences
+		return preferences
 
+	def camera_placement(self, ir):
+		placement = list()
+		for i in range(15,47):
+			if ir[i] == 1:
+				placement.append("middle")
+		for i in range(47,63):
+			if ir[i] == 1:
+				placement.append("left")
+		for i in range(0,15):
+			if ir[i] == 1:
+				placement.append("right")
+		return placement
 
-    def possible(self):
-    	available_commands = list()
-    	if self.forward:
-    		available_commands.append(FORWARD)
-    	if self.turn_right:
-    		available_commands.append(TURNRIGHT)
-    	if self.backward:
-    		available_commands.append(BACKWARD) 
-    	if self.turn_left:
-    		available_commands.append(TURNLEFT)
-    	available_commands.append(ROTRIGHT)
-    	available_commands.append(ROTLEFT)
-    	return available_commands
+	def available(self):
+		available_commands = list()
+		if self.forward:
+			available_commands.append(FORWARD)
+		if self.turn_right:
+			available_commands.append(TURNRIGHT)
+		if self.backward:
+			available_commands.append(BACKWARD) 
+		if self.turn_left:
+			available_commands.append(TURNLEFT)
+		available_commands.append(ROTRIGHT)
+		available_commands.append(ROTLEFT)
+		return available_commands
 
+	def decide(self):
+		command = ""
+		available_commands = self.available()
+		prefered_commands = self.prefered()
+		for i in range(len(prefered_commands)):
+			if prefered_commands[i] in available_commands:
+				command = prefered_commands[i]
+				break
+		#self.publish(str(prefered_commands))
+		self.publish(command)
+		self.pubdist(str(self.found))
+		self.pubdist(str(available_commands))
 
-    def get_lidar(self,lidar):
-        self.forward = lidar.forward
-        self.backward = lidar.backward
-        self.right = lidar.right
-        self.left = lidar.left
-        self.turn_right = lidar.turn_right
-        self.turn_left = lidar.turn_left
-        self.allowed = lidar.minimum
+	def get_lidar(self, lidar):
+		self.forward = lidar.forward
+		self.backward = lidar.backward
+		self.right = lidar.right
+		self.left = lidar.left
+		self.turn_right = lidar.turn_right
+		self.turn_left = lidar.turn_left
+		self.allowed = lidar.minimum
 
-    def get_distressed(self,irdata):
-        self.found = irdata.found
-        self.has_forward = irdata.has_forward
-        self.ir_forward = irdata.ir_forward
-        self.has_right = irdata.has_right
-        self.ir_right = irdata.ir_right
+	def get_distressed(self, irdata):
+		self.found = irdata.found
+		self.has_forward = irdata.has_forward
+		self.ir_forward = irdata.ir_forward
+		self.has_right = irdata.has_right
+		self.ir_right = irdata.ir_right
 
-    def index_to_coord(self, index):
+	def index_to_coord(self, index):
 		x = int(math.fabs(math.floor(index/8)-8))
 		y = int(math.fabs((index % 8)-8))
 		return(x,y)
 
-
 if __name__ == '__main__':
-    ai = AI()
-    listener(ai)
+	ai = AI()
+	listener(ai)
 
