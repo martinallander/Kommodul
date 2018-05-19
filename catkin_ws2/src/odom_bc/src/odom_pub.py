@@ -21,10 +21,16 @@ def callback(data, coord):
 	vx = 5
 
 	if data.data == "forward":
+		#delta_x = 0.0723 * cos(coord.th) + 0.0 * sin(coord.th)
+		#delta_y = -0.031 * sin(coord.th) - 0.0 * cos(coord.th)
+		#delta_th = -0.004
 		delta_x = 0.08 * cos(coord.th) + 0.0 * sin(coord.th)
 		delta_y = 0.08 * sin(coord.th) - 0.0 * cos(coord.th)
 		delta_th = -0.05 * pi /180
 	elif data.data == "backward":
+		#delta_x = - 0.0657 * cos(coord.th) + 0.0 * sin(coord.th)
+		#delta_y = -0.0329 * sin(coord.th) + 0.0 * cos(coord.th)
+		#delta_th = 0.00464
 		delta_x = -0.07475 * cos(coord.th) + 0.0011875 * sin(coord.th)
 		delta_y = -0.07475 * sin(coord.th) - 0.0011875 * cos(coord.th)
 		delta_th = 0.46875 * pi /180

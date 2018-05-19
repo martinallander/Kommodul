@@ -18,11 +18,13 @@ def callback(data, args):
 	pub = args[2]
 	ir_read(ir, data.ir)
 	ir_read(ir2, data.ir_right)
-	if (data.dist - ir1.dist_limit) < 0 and ir1.hot:
+	if ((data.dist - DIST_TRESH) < 0) and ir1.hot:
 		found = True
 	else:
 		found = False
-	pub.publish(found, ir1.hot, ir1.hot_boxes, ir2.hot, ir2.hot_boxes)
+	irdat = IRdata(found, ir1.hot, ir1.hot_boxes, ir2.hot, ir2.hot_boxes)
+	pub.publish_ir(irdat)
+	
 
 def ir_read(ir, ir_data):
 	if not zero_in_array(ir_data):
@@ -38,23 +40,24 @@ def listener(args):
 
 class Distressed_publisher():
 	def __init__(self):
-		self.pub_ir = rospy.Publisher('distressed', IRdata, queue_size=1)
+		self.pub_ir = rospy.Publisher('ir', IRdata, queue_size=1)
+		self.pub = rospy.Publisher('ir_info', String, queue_size=1)
 
-	def publish(self, found, has_forward, ir_forward, has_right, ir_right):
-		pub = IRdata(found, has_forward, ir_forward, has_right, ir_right)
-		self.pub_ir.publish(pub)
+	def publish_ir(self, ir):
+		self.pub_ir.publish(ir)
+
+	def publish_str(self, string):
+		self.pub.publish(string)
 
 class IR:
-	def __init__(self, inits, temp_limit, dist_limit = 0.0):
+	def __init__(self, inits, temp_limit):
 		self.init_reads = inits
 		self.reads = self.init_reads
 		self.ir_mean = 0.0
 		self.first_temps = 0.0
 		self.calibrated = False
 		self.temp_limit = temp_limit
-		self.dist_limit = dist_limit
 		self.hot = False
-		self.in_range = False
 		self.hot_boxes = [0]*64
 
 	def calibrate_mean(self, ir):
@@ -98,13 +101,6 @@ class IR:
 		y = int(math.fabs((index % 8)-8))
 		return(x,y)
 
-	def read_dist(self, dist):
-		if dist < self.dist_limit:
-			self.in_range = True
-		else:
-			self.in_range = False
-
-
 def zero_in_array(values):
 	if any(v == 0 for v in values):
 		return True
@@ -113,14 +109,14 @@ def zero_in_array(values):
 
 if __name__ == '__main__':
 	time.sleep(1)
-	ir = IR(CALIBRATIONS, TEMP_TRESH, DIST_TRESH)
+	ir = IR(CALIBRATIONS, TEMP_TRESH)
 	ir_2 = IR(CALIBRATIONS, TEMP_TRESH)
 	dp = Distressed_publisher()
 	args = list()
 	args.append(ir)
 	args.append(ir_2)
 	args.append(dp)
-	#listener(args)
+	listener(args)
 	#init_values = [20.0]*64
 	#hot_values = init_values
 	#hot_values[7] = 25.0

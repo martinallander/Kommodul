@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # Software License Agreement (BSD License)
 
+import time
 import random
 import operator
 import os
 import rospy
+import RPi.GPIO as GPIO	
 from std_msgs.msg import String
 from cringe_bot.msg import IRdata
 from cringe_bot.msg import Lidardistances
@@ -17,15 +19,19 @@ ROTRIGHT = "rotright"
 ROTLEFT = "rotleft"
 
 
+def gpio_setup():
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setwarnings(False)
+	GPIO.setup(4, GPIO.OUT)
+
+def LED_on():
+	GPIO.output(4, GPIO.HIGH)
+
+def LED_off():
+	GPIO.output(4, GPIO.LOW)
+
 def callback(lidar, ai):
     ai.get_lidar(lidar)
-    #ai.publish(str(lidar.backward))
-    #ai.publish(str(lidar.minimum))
-    #ai.publish(str(lidar.angle))
-   # for i in range(90 + lidar.angle, 270 - lidar.angle):
-   #     if lidar.minimum[i] == 0:
-   #         ai.publish(str(i))
-#    ai.publish(str(lidar.backward))
 
 def callback_dist(irdata, ai):
     ai.get_distressed(irdata)
@@ -38,17 +44,18 @@ def mini_range(values):
     return [min_index, min_value]
 
 def listener(AI):
-
-	rospy.init_node('listener', anonymous=True)
-
+	rospy.init_node('ai', anonymous=True)
 	rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
-	rospy.Subscriber('distressed', IRdata, callback_dist, AI)
+	rospy.Subscriber('ir', IRdata, callback_dist, AI)
 	rate = rospy.Rate(0.5)
 	while not rospy.is_shutdown():
 		#AI.pubinfo()
 		#rate.sleep()
-		AI.pubinfo()
+		if not AI.lit and AI.found:
+		#	LED_on()
+			AI.lit = True
 		AI.decide()
+		#AI.pubinfo()
 		rate.sleep()
 	rospy.spin()
 
@@ -70,10 +77,11 @@ class AI():
 		self.ir_right = [0] * 64
 		self.prev = ""
 		self.queue = list()
+		self.lit = False
 
 	def publish(self, string):
 		self.pub.publish(string)
-	
+
 	def pubdist(self, string):
 		self.pubfound.publish(string)
 
@@ -81,6 +89,20 @@ class AI():
 		self.pubdist("Found: " + str(self.found))
 		self.pubdist("Hot forward: " + str(self.has_forward))
 		self.pubdist("Hot right : " + str(self.has_right))
+
+	
+	def camera_placement(self, ir):
+		placement = list()
+		for i in range(15,47):
+			if ir[i] == 1:
+				placement.append("middle")
+		for i in range(47,63):
+			if ir[i] == 1:
+				placement.append("left")
+		for i in range(0,15):
+			if ir[i] == 1:
+				placement.append("right")
+		return placement
 
 	def prefered(self):
 		preferences = list()
@@ -92,9 +114,9 @@ class AI():
 				preferences.append(TURNLEFT)
 			if "right" in placement:
 				preferences.append(TURNRIGHT)
-		#if self.has_right:
-			#preferences.append(TURNRIGHT)
-			#self.queue.append(TURNRIGHT)
+		if self.has_right:
+			preferences.append(TURNRIGHT)
+			self.queue.append(TURNRIGHT)
 		preferences.append(FORWARD)
 		preferences.append(TURNLEFT)
 		preferences.append(TURNRIGHT)
@@ -117,20 +139,9 @@ class AI():
 			else:
 				preferences.append(ROTLEFT)
 		preferences.append(BACKWARD)
+		self.pubdist(str(preferences))
+		self.pubinfo()
 		return preferences
-
-	def camera_placement(self, ir):
-		placement = list()
-		for i in range(15,47):
-			if ir[i] == 1:
-				placement.append("middle")
-		for i in range(47,63):
-			if ir[i] == 1:
-				placement.append("left")
-		for i in range(0,15):
-			if ir[i] == 1:
-				placement.append("right")
-		return placement
 
 	def available(self):
 		available_commands = list()
@@ -156,9 +167,8 @@ class AI():
 			if prefered_commands[i] in available_commands:
 				command = prefered_commands[i]
 				break
-		#self.publish(str(prefered_commands))
-		#self.publish(command)
-		self.pubdist(str(available_commands))
+		self.publish(command)
+		#self.pubdist(str(available_commands))
 		self.prev = command
 
 	def get_lidar(self, lidar):
@@ -171,11 +181,18 @@ class AI():
 		self.allowed = lidar.minimum
 
 	def get_distressed(self, irdata):
-		self.found = irdata.found
-		self.has_forward = irdata.has_forward
-		self.ir_forward = irdata.ir_forward
-		self.has_right = irdata.has_right
-		self.ir_right = irdata.ir_right
+		if not self.found:
+			self.found = irdata.found
+			self.has_forward = irdata.has_forward
+			self.ir_forward = irdata.ir_forward
+			self.has_right = irdata.has_right
+			self.ir_right = irdata.ir_right
+		else:
+			self.found = True
+			self.has_forward = False
+			self.has_right = False
+			self.ir_forward = irdata.ir_forward
+			self.ir_right = irdata.ir_right
 
 	def index_to_coord(self, index):
 		x = int(math.fabs(math.floor(index/8)-8))
@@ -183,6 +200,11 @@ class AI():
 		return(x,y)
 
 if __name__ == '__main__':
-	ai = AI()
-	listener(ai)
+	try:
+		#gpio_setup()
+		ai = AI()
+		listener(ai)
+	except rospy.ROSInterruptException:
+		pass
+		
 
