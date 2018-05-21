@@ -1,6 +1,6 @@
 (cl:in-package cringe_bot-msg)
-(cl:export '(FOUND-VAL
-          FOUND
+(cl:export '(DIST-VAL
+          DIST
           HAS_FORWARD-VAL
           HAS_FORWARD
           IR_FORWARD-VAL

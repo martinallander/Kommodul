@@ -3,14 +3,20 @@
 
 import rospy
 import time
-from std_msgs.msg import String
 import math
+import ConfigParser
+from std_msgs.msg import String
 from cringe_bot.msg import Sensordata
 from cringe_bot.msg import IRdata
 
 CALIBRATIONS = 15
-TEMP_TRESH = 4.0
-DIST_TRESH = 50.0
+
+def set_params(param):
+	settings = ConfigParser.ConfigParser()
+	settings.read("/home/ubuntu/Kommodul/parameters.conf")
+	setting = settings.get("Parameters", param)
+	return setting
+
 
 def callback(data, args):
 	ir1 = args[0]
@@ -18,11 +24,7 @@ def callback(data, args):
 	pub = args[2]
 	ir_read(ir, data.ir)
 	ir_read(ir2, data.ir_right)
-	if ((data.dist - DIST_TRESH) < 0) and ir1.hot:
-		found = True
-	else:
-		found = False
-	irdat = IRdata(found, ir1.hot, ir1.hot_boxes, ir2.hot, ir2.hot_boxes)
+	irdat = IRdata(data.dist, ir1.hot, ir1.hot_boxes, ir2.hot, ir2.hot_boxes)
 	pub.publish_ir(irdat)
 	
 
@@ -108,9 +110,10 @@ def zero_in_array(values):
 		return False
 
 if __name__ == '__main__':
+	TEMP_TRESH = set_params("Temperaturelimit")
 	time.sleep(1)
-	ir = IR(CALIBRATIONS, TEMP_TRESH)
-	ir_2 = IR(CALIBRATIONS, TEMP_TRESH)
+	ir = IR(CALIBRATIONS, float(TEMP_TRESH))
+	ir_2 = IR(CALIBRATIONS, float(TEMP_TRESH))
 	dp = Distressed_publisher()
 	args = list()
 	args.append(ir)

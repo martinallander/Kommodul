@@ -18,18 +18,18 @@ class IRdata {
   constructor(initObj={}) {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
-      this.found = null;
+      this.dist = null;
       this.has_forward = null;
       this.ir_forward = null;
       this.has_right = null;
       this.ir_right = null;
     }
     else {
-      if (initObj.hasOwnProperty('found')) {
-        this.found = initObj.found
+      if (initObj.hasOwnProperty('dist')) {
+        this.dist = initObj.dist
       }
       else {
-        this.found = false;
+        this.dist = 0.0;
       }
       if (initObj.hasOwnProperty('has_forward')) {
         this.has_forward = initObj.has_forward
@@ -60,8 +60,8 @@ class IRdata {
 
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type IRdata
-    // Serialize message field [found]
-    bufferOffset = _serializer.bool(obj.found, buffer, bufferOffset);
+    // Serialize message field [dist]
+    bufferOffset = _serializer.float32(obj.dist, buffer, bufferOffset);
     // Serialize message field [has_forward]
     bufferOffset = _serializer.bool(obj.has_forward, buffer, bufferOffset);
     // Check that the constant length array field [ir_forward] has the right length
@@ -85,8 +85,8 @@ class IRdata {
     //deserializes a message object of type IRdata
     let len;
     let data = new IRdata(null);
-    // Deserialize message field [found]
-    data.found = _deserializer.bool(buffer, bufferOffset);
+    // Deserialize message field [dist]
+    data.dist = _deserializer.float32(buffer, bufferOffset);
     // Deserialize message field [has_forward]
     data.has_forward = _deserializer.bool(buffer, bufferOffset);
     // Deserialize message field [ir_forward]
@@ -99,7 +99,7 @@ class IRdata {
   }
 
   static getMessageSize(object) {
-    return 259;
+    return 262;
   }
 
   static datatype() {
@@ -109,17 +109,18 @@ class IRdata {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '8078a5463687326c03d4416e72b356a7';
+    return 'bb41efdfb7055f64a4f92993c2b04d80';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    bool found
+    float32 dist
     bool has_forward
     int16[64] ir_forward
     bool has_right
     int16[64] ir_right
+    
     `;
   }
 
@@ -129,11 +130,11 @@ class IRdata {
       msg = {};
     }
     const resolved = new IRdata(null);
-    if (msg.found !== undefined) {
-      resolved.found = msg.found;
+    if (msg.dist !== undefined) {
+      resolved.dist = msg.dist;
     }
     else {
-      resolved.found = false
+      resolved.dist = 0.0
     }
 
     if (msg.has_forward !== undefined) {

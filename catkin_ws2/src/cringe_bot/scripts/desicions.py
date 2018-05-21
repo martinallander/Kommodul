@@ -6,10 +6,13 @@ import random
 import operator
 import os
 import rospy
-import RPi.GPIO as GPIO	
+import RPi.GPIO as GPIO
+import ConfigParser
 from std_msgs.msg import String
 from cringe_bot.msg import IRdata
 from cringe_bot.msg import Lidardistances
+
+DIST_TRESH = 50.0
 
 FORWARD = "forward"
 BACKWARD = "backward"
@@ -18,6 +21,11 @@ TURNRIGHT = "turnright"
 ROTRIGHT = "rotright"
 ROTLEFT = "rotleft"
 
+def set_params(param):
+	settings = ConfigParser.ConfigParser()
+	settings.read("/home/ubuntu/Kommodul/parameters.conf")
+	setting = settings.get("Parameters", param)
+	return setting
 
 def gpio_setup():
 	GPIO.setmode(GPIO.BCM)
@@ -47,20 +55,19 @@ def listener(AI):
 	rospy.init_node('ai', anonymous=True)
 	rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
 	rospy.Subscriber('ir', IRdata, callback_dist, AI)
-	rate = rospy.Rate(0.5)
+	rate = rospy.Rate(1)
 	while not rospy.is_shutdown():
-		#AI.pubinfo()
+		AI.check_found()
 		#rate.sleep()
 		if not AI.lit and AI.found:
 		#	LED_on()
 			AI.lit = True
 		AI.decide()
-		#AI.pubinfo()
 		rate.sleep()
 	rospy.spin()
 
 class AI():
-	def __init__(self):
+	def __init__(self, dist):
 		self.pub = rospy.Publisher('spi_commands', String, queue_size=1)
 		self.pubfound = rospy.Publisher('info', String, queue_size=1)
 		self.forward = False
@@ -78,6 +85,7 @@ class AI():
 		self.prev = ""
 		self.queue = list()
 		self.lit = False
+		self.dist = dist
 
 	def publish(self, string):
 		self.pub.publish(string)
@@ -85,12 +93,6 @@ class AI():
 	def pubdist(self, string):
 		self.pubfound.publish(string)
 
-	def pubinfo(self):
-		self.pubdist("Found: " + str(self.found))
-		self.pubdist("Hot forward: " + str(self.has_forward))
-		self.pubdist("Hot right : " + str(self.has_right))
-
-	
 	def camera_placement(self, ir):
 		placement = list()
 		for i in range(15,47):
@@ -115,8 +117,20 @@ class AI():
 			if "right" in placement:
 				preferences.append(TURNRIGHT)
 		if self.has_right:
-			preferences.append(TURNRIGHT)
-			self.queue.append(TURNRIGHT)
+			preferences.append(ROTRIGHT)
+			self.queue.append(ROTRIGHT)
+		if self.right == False and self.left:
+			pick = random.choice([True, False])
+			if pick:
+				preferences.append(FORWARD)
+			else:
+				preferences.append(TURNLEFT)
+		if self.right and self.left == False:
+			pick = random.choice([True, False])
+			if pick:
+				preferences.append(FORWARD)
+			else:
+				preferences.append(TURNRIGHT)
 		preferences.append(FORWARD)
 		preferences.append(TURNLEFT)
 		preferences.append(TURNRIGHT)
@@ -139,8 +153,6 @@ class AI():
 			else:
 				preferences.append(ROTLEFT)
 		preferences.append(BACKWARD)
-		self.pubdist(str(preferences))
-		self.pubinfo()
 		return preferences
 
 	def available(self):
@@ -168,7 +180,7 @@ class AI():
 				command = prefered_commands[i]
 				break
 		self.publish(command)
-		#self.pubdist(str(available_commands))
+		self.pubdist(str(available_commands))
 		self.prev = command
 
 	def get_lidar(self, lidar):
@@ -182,17 +194,24 @@ class AI():
 
 	def get_distressed(self, irdata):
 		if not self.found:
-			self.found = irdata.found
+			self.dist = irdata.dist
 			self.has_forward = irdata.has_forward
 			self.ir_forward = irdata.ir_forward
 			self.has_right = irdata.has_right
 			self.ir_right = irdata.ir_right
 		else:
 			self.found = True
+			self.dist = 1000.0
 			self.has_forward = False
 			self.has_right = False
 			self.ir_forward = irdata.ir_forward
 			self.ir_right = irdata.ir_right
+
+	def check_found(self):
+		if self.dist - DIST_TRESH < 0 and self.ir_forward:
+			self.found = True
+		else:
+			self.found = False
 
 	def index_to_coord(self, index):
 		x = int(math.fabs(math.floor(index/8)-8))
@@ -201,8 +220,9 @@ class AI():
 
 if __name__ == '__main__':
 	try:
+		DIST = set_params("Distresseddistance")
 		#gpio_setup()
-		ai = AI()
+		ai = AI(float(DIST))
 		listener(ai)
 	except rospy.ROSInterruptException:
 		pass

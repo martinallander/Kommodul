@@ -7,7 +7,15 @@ import time
 from std_msgs.msg import String
 from cringe_bot.msg import Sensordata
 
-move_commands = ["rotright", "rotleft", "forward", "backward", "turnleft", "turnright"]
+FORWARD = "forward"
+BACKWARD = "backward"
+TURNLEFT = "turnleft"
+TURNRIGHT = "turnright"
+ROTRIGHT = "rotright"
+ROTLEFT = "rotleft"
+
+
+move_commands = [FORWARD, BACKWARD, TURNLEFT, TURNRIGHT, ROTRIGHT, ROTLEFT]
 
 def callback(data, spi_node):
     if data.data.lower() in move_commands:

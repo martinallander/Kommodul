@@ -24,7 +24,7 @@ struct IRdata_
   typedef IRdata_<ContainerAllocator> Type;
 
   IRdata_()
-    : found(false)
+    : dist(0.0)
     , has_forward(false)
     , ir_forward()
     , has_right(false)
@@ -34,7 +34,7 @@ struct IRdata_
       ir_right.assign(0);
   }
   IRdata_(const ContainerAllocator& _alloc)
-    : found(false)
+    : dist(0.0)
     , has_forward(false)
     , ir_forward()
     , has_right(false)
@@ -47,8 +47,8 @@ struct IRdata_
 
 
 
-   typedef uint8_t _found_type;
-  _found_type found;
+   typedef float _dist_type;
+  _dist_type dist;
 
    typedef uint8_t _has_forward_type;
   _has_forward_type has_forward;
@@ -140,12 +140,12 @@ struct MD5Sum< ::cringe_bot::IRdata_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "8078a5463687326c03d4416e72b356a7";
+    return "bb41efdfb7055f64a4f92993c2b04d80";
   }
 
   static const char* value(const ::cringe_bot::IRdata_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x8078a5463687326cULL;
-  static const uint64_t static_value2 = 0x03d4416e72b356a7ULL;
+  static const uint64_t static_value1 = 0xbb41efdfb7055f64ULL;
+  static const uint64_t static_value2 = 0xa4f92993c2b04d80ULL;
 };
 
 template<class ContainerAllocator>
@@ -164,7 +164,7 @@ struct Definition< ::cringe_bot::IRdata_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "bool found\n\
+    return "float32 dist\n\
 bool has_forward\n\
 int16[64] ir_forward\n\
 bool has_right\n\
@@ -187,7 +187,7 @@ namespace serialization
   {
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
-      stream.next(m.found);
+      stream.next(m.dist);
       stream.next(m.has_forward);
       stream.next(m.ir_forward);
       stream.next(m.has_right);
@@ -210,8 +210,8 @@ struct Printer< ::cringe_bot::IRdata_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::cringe_bot::IRdata_<ContainerAllocator>& v)
   {
-    s << indent << "found: ";
-    Printer<uint8_t>::stream(s, indent + "  ", v.found);
+    s << indent << "dist: ";
+    Printer<float>::stream(s, indent + "  ", v.dist);
     s << indent << "has_forward: ";
     Printer<uint8_t>::stream(s, indent + "  ", v.has_forward);
     s << indent << "ir_forward[]" << std::endl;

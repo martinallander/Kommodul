@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-	
+
 import math
 from math import sin, cos, pi
 
@@ -18,7 +18,7 @@ class Coord:
 
 
 def callback(data, coord):
-	vx = 5
+
 
 	if data.data == "forward":
 		#delta_x = 0.0723 * cos(coord.th) + 0.0 * sin(coord.th)
@@ -96,9 +96,8 @@ def main():
 		# publish the message
 		odom_pub.publish(odom)
 
-
+		rospy.sleep()
 		pass
-		
-	
+
 if __name__ == '__main__':
 	main()

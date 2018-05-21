@@ -1,4 +1,4 @@
-bool found
+float32 dist
 bool has_forward
 int16[64] ir_forward
 bool has_right

@@ -5,6 +5,7 @@ import operator
 import os
 import rospy
 import math
+import ConfigParser
 from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from cringe_bot.msg import Lidardistances
@@ -12,6 +13,12 @@ from cringe_bot.msg import Lidardistances
 MIN_VALUE = 0.4
 LEG_LENGTH = 0.35
 ANGLE_DRIFT = 10
+
+def set_params(param):
+	settings = ConfigParser.ConfigParser()
+	settings.read("/home/ubuntu/Kommodul/parameters.conf")
+	setting = settings.get("Parameters", param)
+	return setting
 
 def callbackward(measurement, classes):
     dist = classes[0]
@@ -53,19 +60,20 @@ def listener(Classes):
     rospy.spin()
 
 class Distances():
-    def __init__(self, limit):
-        self.pub = rospy.Publisher('lidar_data', Lidardistances, queue_size=1)
-        self.limit = limit
-        self.done = True
-        self.backward = True
-        self.right = True
-        self.forward = True
-        self.left = True
-        self.turn_right = True
-        self.turn_left = True
-        self.all = [0.0] * 360
-        self.allowed = [1] * 360
-        self.angle = int(math.degrees(math.acos(LEG_LENGTH/self.limit)))
+    def __init__(self, limit, angle_drift, leg_length):
+		self.pub = rospy.Publisher('lidar_data', Lidardistances, queue_size=1)
+		self.limit = limit
+		self.done = True
+		self.backward = True
+		self.right = True
+		self.forward = True
+		self.left = True
+		self.turn_right = True
+		self.turn_left = True
+		self.all = [0.0] * 360
+		self.allowed = [1] * 360
+		self.angle = int(math.degrees(math.acos(leg_length/self.limit)))
+		self.angle_drift = angle_drift
 
     def check_moves(self):
         self.backward = True
@@ -79,12 +87,12 @@ class Distances():
 				self.forward = False
 				break
 
-        for i in range(90 - ANGLE_DRIFT + self.angle, 270 - ANGLE_DRIFT - self.angle):
+        for i in range(90 - self.angle_drift + self.angle, 270 - self.angle_drift - self.angle):
             if self.allowed[i] == 0:
 				self.turn_right = False
 				break
 
-        for i in range(90 + ANGLE_DRIFT + self.angle, 270 + ANGLE_DRIFT - self.angle):
+        for i in range(90 + self.angle_drift + self.angle, 270 + self.angle_drift - self.angle):
             if self.allowed[i] == 0:
 				self.turn_left = False
 				break
@@ -124,11 +132,14 @@ class Distances():
         return angle_min + (angle_inc*index)
 
 if __name__ == '__main__':
-    dist = Distances(MIN_VALUE)
-    #ai = AI(0.20)
-    classes = list()
-    classes.append(dist)
-    listener(classes)
+	lidardist = set_params("Lidardistance")
+	angledrift = set_params("Angledrift")
+	leglength = set_params("Leglength")
+	dist = Distances(float(lidardist), int(angledrift), float(leglength))
+	#ai = AI(0.20)
+	classes = list()
+	classes.append(dist)
+	listener(classes)
 
 
 

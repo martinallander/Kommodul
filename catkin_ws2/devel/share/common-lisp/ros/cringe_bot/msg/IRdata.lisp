@@ -7,11 +7,11 @@
 ;//! \htmlinclude IRdata.msg.html
 
 (cl:defclass <IRdata> (roslisp-msg-protocol:ros-message)
-  ((found
-    :reader found
-    :initarg :found
-    :type cl:boolean
-    :initform cl:nil)
+  ((dist
+    :reader dist
+    :initarg :dist
+    :type cl:float
+    :initform 0.0)
    (has_forward
     :reader has_forward
     :initarg :has_forward
@@ -42,10 +42,10 @@
   (cl:unless (cl:typep m 'IRdata)
     (roslisp-msg-protocol:msg-deprecation-warning "using old message class name cringe_bot-msg:<IRdata> is deprecated: use cringe_bot-msg:IRdata instead.")))
 
-(cl:ensure-generic-function 'found-val :lambda-list '(m))
-(cl:defmethod found-val ((m <IRdata>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader cringe_bot-msg:found-val is deprecated.  Use cringe_bot-msg:found instead.")
-  (found m))
+(cl:ensure-generic-function 'dist-val :lambda-list '(m))
+(cl:defmethod dist-val ((m <IRdata>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader cringe_bot-msg:dist-val is deprecated.  Use cringe_bot-msg:dist instead.")
+  (dist m))
 
 (cl:ensure-generic-function 'has_forward-val :lambda-list '(m))
 (cl:defmethod has_forward-val ((m <IRdata>))
@@ -68,7 +68,11 @@
   (ir_right m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <IRdata>) ostream)
   "Serializes a message object of type '<IRdata>"
-  (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'found) 1 0)) ostream)
+  (cl:let ((bits (roslisp-utils:encode-single-float-bits (cl:slot-value msg 'dist))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream))
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'has_forward) 1 0)) ostream)
   (cl:map cl:nil #'(cl:lambda (ele) (cl:let* ((signed ele) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 65536) signed)))
     (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
@@ -84,7 +88,12 @@
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <IRdata>) istream)
   "Deserializes a message object of type '<IRdata>"
-    (cl:setf (cl:slot-value msg 'found) (cl:not (cl:zerop (cl:read-byte istream))))
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+    (cl:setf (cl:slot-value msg 'dist) (roslisp-utils:decode-single-float-bits bits)))
     (cl:setf (cl:slot-value msg 'has_forward) (cl:not (cl:zerop (cl:read-byte istream))))
   (cl:setf (cl:slot-value msg 'ir_forward) (cl:make-array 64))
   (cl:let ((vals (cl:slot-value msg 'ir_forward)))
@@ -111,19 +120,19 @@
   "cringe_bot/IRdata")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<IRdata>)))
   "Returns md5sum for a message object of type '<IRdata>"
-  "8078a5463687326c03d4416e72b356a7")
+  "bb41efdfb7055f64a4f92993c2b04d80")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'IRdata)))
   "Returns md5sum for a message object of type 'IRdata"
-  "8078a5463687326c03d4416e72b356a7")
+  "bb41efdfb7055f64a4f92993c2b04d80")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<IRdata>)))
   "Returns full string definition for message of type '<IRdata>"
-  (cl:format cl:nil "bool found~%bool has_forward~%int16[64] ir_forward~%bool has_right~%int16[64] ir_right~%~%"))
+  (cl:format cl:nil "float32 dist~%bool has_forward~%int16[64] ir_forward~%bool has_right~%int16[64] ir_right~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'IRdata)))
   "Returns full string definition for message of type 'IRdata"
-  (cl:format cl:nil "bool found~%bool has_forward~%int16[64] ir_forward~%bool has_right~%int16[64] ir_right~%~%"))
+  (cl:format cl:nil "float32 dist~%bool has_forward~%int16[64] ir_forward~%bool has_right~%int16[64] ir_right~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <IRdata>))
   (cl:+ 0
-     1
+     4
      1
      0 (cl:reduce #'cl:+ (cl:slot-value msg 'ir_forward) :key #'(cl:lambda (ele) (cl:declare (cl:ignorable ele)) (cl:+ 2)))
      1
@@ -132,7 +141,7 @@
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <IRdata>))
   "Converts a ROS message object to a list"
   (cl:list 'IRdata
-    (cl:cons ':found (found msg))
+    (cl:cons ':dist (dist msg))
     (cl:cons ':has_forward (has_forward msg))
     (cl:cons ':ir_forward (ir_forward msg))
     (cl:cons ':has_right (has_right msg))

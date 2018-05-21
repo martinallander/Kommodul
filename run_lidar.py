@@ -9,4 +9,4 @@ path = "catkin_ws2/"
 
 os.chdir(path)
 os.system("source devel/setup.bash")
-os.system("roslaunch rplidar_ros theoslam.launch")
+os.system("roslaunch rplidar_ros cringebot.launch")
