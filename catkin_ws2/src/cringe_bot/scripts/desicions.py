@@ -8,6 +8,7 @@ import os
 import rospy
 import RPi.GPIO as GPIO
 import ConfigParser
+import pigpio
 from std_msgs.msg import String
 from cringe_bot.msg import IRdata
 from cringe_bot.msg import Lidardistances
@@ -33,10 +34,14 @@ def gpio_setup():
 	GPIO.setup(4, GPIO.OUT)
 
 def LED_on():
-	GPIO.output(4, GPIO.HIGH)
+	pi.write(17, 1)
 
 def LED_off():
-	GPIO.output(4, GPIO.LOW)
+	pi.write(17, 0)
+
+def pigpio_init():
+	pi = pigpio.pi()
+	pi.set_mode(17, pigpio.OUTPUT)
 
 def callback(lidar, ai):
     ai.get_lidar(lidar)
@@ -60,7 +65,7 @@ def listener(AI):
 		AI.check_found()
 		#rate.sleep()
 		if not AI.lit and AI.found:
-		#	LED_on()
+			LED_on()
 			AI.lit = True
 		AI.decide()
 		rate.sleep()
@@ -86,6 +91,7 @@ class AI():
 		self.queue = list()
 		self.lit = False
 		self.dist = dist
+		self.moves_done = list()
 
 	def publish(self, string):
 		self.pub.publish(string)
@@ -173,6 +179,8 @@ class AI():
 		command = ""
 		available_commands = self.available()
 		prefered_commands = self.prefered()
+		if self.found:
+			[self.move_back()] + prefered_commands
 		if not len(self.queue) == 0 and self.prev == ROTRIGHT:
 			prefered_commands.insert(0, self.queue.pop(0))
 		for i in range(len(prefered_commands)):
@@ -180,8 +188,26 @@ class AI():
 				command = prefered_commands[i]
 				break
 		self.publish(command)
+		self.moves_done.append(command)
 		self.pubdist(str(available_commands))
 		self.prev = command
+
+	def inverse_move(self, move):
+		inverse = ""
+		if move == FORWARD or TURNLEFT or TURNRIGTH:
+			inverse = BACKWARD
+		if move == BACKWARD:
+			inverse = FORWARD
+		if move == ROTRIGHT
+			inverse = ROTLEFT
+		if move == ROTLEFT
+			inverse = ROTRIGHT
+		return inverse
+
+	def move_back(self):
+		latest_move = self.moves_done[-1]
+		inverse = self.inverse_move()
+		return inverse
 
 	def get_lidar(self, lidar):
 		self.forward = lidar.forward
@@ -225,6 +251,7 @@ if __name__ == '__main__':
 		ai = AI(float(DIST))
 		listener(ai)
 	except rospy.ROSInterruptException:
-		pass
+		LED_off()
+		pi.stop()
 		
 
