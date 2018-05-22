@@ -64,8 +64,9 @@ class IR:
 
 	def calibrate_mean(self, ir):
 		temp_sum = 0.0
-		for temp in ir:
-			temp_sum += temp
+		for i in range(len(ir)):
+		#	if not ((i % 8 == 5) or (i % 8 == 6) or (i % 8 == 7) or i == 4):
+				temp_sum += ir[i]
 		self.first_temps += temp_sum/64
 		self.reads -= 1
 		if self.reads == 0:
@@ -77,7 +78,7 @@ class IR:
 
 	def read_ir(self, ir):
 		for i in range(len(ir)):
-			if (i % 8 == 5) or (i % 8 == 6) or (i % 8 == 7):
+			if (i % 8 == 5) or (i % 8 == 6) or (i % 8 == 7) or i == 4:
 				self.hot_boxes[i] = 0
 			else:
 				if ir[i] - self.ir_mean > self.temp_limit:

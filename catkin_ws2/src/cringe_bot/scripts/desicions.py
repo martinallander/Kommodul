@@ -21,6 +21,8 @@ TURNLEFT = "turnleft"
 TURNRIGHT = "turnright"
 ROTRIGHT = "rotright"
 ROTLEFT = "rotleft"
+pi = pigpio.pi()
+pi.set_mode(17, pigpio.OUTPUT)
 
 def set_params(param):
 	settings = ConfigParser.ConfigParser()
@@ -33,24 +35,28 @@ def gpio_setup():
 	GPIO.setwarnings(False)
 	GPIO.setup(4, GPIO.OUT)
 
-def LED_on():
-	pi.write(17, 1)
-
-def LED_off():
-	pi.write(17, 0)
-
-def pigpio_init():
-	pi = pigpio.pi()
-	pi.set_mode(17, pigpio.OUTPUT)
-
 def callback(lidar, ai):
     ai.get_lidar(lidar)
 
 def callback_dist(irdata, ai):
     ai.get_distressed(irdata)
 
+def callback_gui(guidata, AI):
+	if guidata.data == "Autonom":
+		AI.autonomous = True
+		#AI.pubdist("Autonom")
+	elif guidata.data == "Manual":
+		AI.autonomous = False
+		#AI.pubdist("Manual")
+
 def closest(values):
     return min(values)
+
+def LED_on():
+	pi.write(17, 1)
+
+def LED_off():
+	pi.write(17, 0)
 
 def mini_range(values):
     min_index, min_value = min(enumerate(values), key=operator.itemgetter(1))
@@ -60,15 +66,20 @@ def listener(AI):
 	rospy.init_node('ai', anonymous=True)
 	rospy.Subscriber('lidar_data', Lidardistances, callback, AI)
 	rospy.Subscriber('ir', IRdata, callback_dist, AI)
+	rospy.Subscriber('gui_info', String, callback_gui, AI)
 	rate = rospy.Rate(1)
+	LED_off()
 	while not rospy.is_shutdown():
 		AI.check_found()
-		#rate.sleep()
-		if not AI.lit and AI.found:
+		if AI.found:
 			LED_on()
-			AI.lit = True
-		AI.decide()
-		rate.sleep()
+			time.sleep(5)
+			AI.pubdist("Done")
+			LED_off()
+			pi.stop()
+			break
+		if not AI.found:
+			AI.decide()
 	rospy.spin()
 
 class AI():
@@ -82,7 +93,7 @@ class AI():
 		self.found = False
 		self.turn_right = False
 		self.turn_left = False
-		self.allowed = [0] * 64
+		self.allowed = [0] * 360
 		self.has_forward = False
 		self.has_right = False
 		self.ir_forward = [0] * 64
@@ -92,6 +103,8 @@ class AI():
 		self.lit = False
 		self.dist = dist
 		self.moves_done = list()
+		self.lidar_dist = False
+		self.autonomous = False
 
 	def publish(self, string):
 		self.pub.publish(string)
@@ -179,15 +192,16 @@ class AI():
 		command = ""
 		available_commands = self.available()
 		prefered_commands = self.prefered()
-		if self.found:
-			[self.move_back()] + prefered_commands
+		#if self.found:
+		#	[self.move_back()] + prefered_commands
 		if not len(self.queue) == 0 and self.prev == ROTRIGHT:
 			prefered_commands.insert(0, self.queue.pop(0))
 		for i in range(len(prefered_commands)):
 			if prefered_commands[i] in available_commands:
 				command = prefered_commands[i]
 				break
-		self.publish(command)
+		if self.autonomous:
+			self.publish(command)
 		self.moves_done.append(command)
 		self.pubdist(str(available_commands))
 		self.prev = command
@@ -198,15 +212,16 @@ class AI():
 			inverse = BACKWARD
 		if move == BACKWARD:
 			inverse = FORWARD
-		if move == ROTRIGHT
+		if move == ROTRIGHT:
 			inverse = ROTLEFT
-		if move == ROTLEFT
+		if move == ROTLEFT:
 			inverse = ROTRIGHT
 		return inverse
 
 	def move_back(self):
 		latest_move = self.moves_done[-1]
-		inverse = self.inverse_move()
+		self.moves_done.pop(-1)
+		inverse = self.inverse_move(latest_move)
 		return inverse
 
 	def get_lidar(self, lidar):
@@ -217,6 +232,7 @@ class AI():
 		self.turn_right = lidar.turn_right
 		self.turn_left = lidar.turn_left
 		self.allowed = lidar.minimum
+		self.lidar_dist = lidar.distressed
 
 	def get_distressed(self, irdata):
 		if not self.found:
@@ -226,6 +242,7 @@ class AI():
 			self.has_right = irdata.has_right
 			self.ir_right = irdata.ir_right
 		else:
+			self.pubdist("Found")
 			self.found = True
 			self.dist = 1000.0
 			self.has_forward = False
@@ -234,7 +251,7 @@ class AI():
 			self.ir_right = irdata.ir_right
 
 	def check_found(self):
-		if self.dist - DIST_TRESH < 0 and self.ir_forward:
+		if self.lidar_dist and self.has_forward:
 			self.found = True
 		else:
 			self.found = False
@@ -247,7 +264,6 @@ class AI():
 if __name__ == '__main__':
 	try:
 		DIST = set_params("Distresseddistance")
-		#gpio_setup()
 		ai = AI(float(DIST))
 		listener(ai)
 	except rospy.ROSInterruptException:

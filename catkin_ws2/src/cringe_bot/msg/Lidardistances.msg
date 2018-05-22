@@ -4,6 +4,7 @@ bool right
 bool left
 bool turn_right
 bool turn_left
+bool distressed
 int16[360] minimum
 float32 limit
 int16 angle
