@@ -14,7 +14,7 @@
 
 (defclass cringe_bot::Lidardistances
   :super ros::object
-  :slots (_forward _backward _right _left _turn_right _turn_left _minimum _limit _angle ))
+  :slots (_forward _backward _right _left _turn_right _turn_left _distressed _minimum _limit _angle ))
 
 (defmethod cringe_bot::Lidardistances
   (:init
@@ -25,6 +25,7 @@
     ((:left __left) nil)
     ((:turn_right __turn_right) nil)
     ((:turn_left __turn_left) nil)
+    ((:distressed __distressed) nil)
     ((:minimum __minimum) (make-array 360 :initial-element 0 :element-type :integer))
     ((:limit __limit) 0.0)
     ((:angle __angle) 0)
@@ -36,6 +37,7 @@
    (setq _left __left)
    (setq _turn_right __turn_right)
    (setq _turn_left __turn_left)
+   (setq _distressed __distressed)
    (setq _minimum __minimum)
    (setq _limit (float __limit))
    (setq _angle (round __angle))
@@ -58,6 +60,9 @@
   (:turn_left
    (&optional __turn_left)
    (if __turn_left (setq _turn_left __turn_left)) _turn_left)
+  (:distressed
+   (&optional __distressed)
+   (if __distressed (setq _distressed __distressed)) _distressed)
   (:minimum
    (&optional __minimum)
    (if __minimum (setq _minimum __minimum)) _minimum)
@@ -82,6 +87,8 @@
     1
     ;; bool _turn_left
     1
+    ;; bool _distressed
+    1
     ;; int16[360] _minimum
     (* 2    360)
     ;; float32 _limit
@@ -105,6 +112,8 @@
        (if _turn_right (write-byte -1 s) (write-byte 0 s))
      ;; bool _turn_left
        (if _turn_left (write-byte -1 s) (write-byte 0 s))
+     ;; bool _distressed
+       (if _distressed (write-byte -1 s) (write-byte 0 s))
      ;; int16[360] _minimum
      (dotimes (i 360)
        (write-word (elt _minimum i) s)
@@ -129,6 +138,8 @@
      (setq _turn_right (not (= 0 (sys::peek buf ptr- :char)))) (incf ptr- 1)
    ;; bool _turn_left
      (setq _turn_left (not (= 0 (sys::peek buf ptr- :char)))) (incf ptr- 1)
+   ;; bool _distressed
+     (setq _distressed (not (= 0 (sys::peek buf ptr- :char)))) (incf ptr- 1)
    ;; int16[360] _minimum
    (dotimes (i (length _minimum))
      (setf (elt _minimum i) (sys::peek buf ptr- :short)) (incf ptr- 2)
@@ -141,7 +152,7 @@
    self)
   )
 
-(setf (get cringe_bot::Lidardistances :md5sum-) "029a944d8a38cab9394851815b26567b")
+(setf (get cringe_bot::Lidardistances :md5sum-) "1bf1b94a213c6e33b539f2122a78cb26")
 (setf (get cringe_bot::Lidardistances :datatype-) "cringe_bot/Lidardistances")
 (setf (get cringe_bot::Lidardistances :definition-)
       "bool forward
@@ -150,13 +161,15 @@ bool right
 bool left
 bool turn_right
 bool turn_left
+bool distressed
 int16[360] minimum
 float32 limit
 int16 angle
+
 ")
 
 
 
-(provide :cringe_bot/Lidardistances "029a944d8a38cab9394851815b26567b")
+(provide :cringe_bot/Lidardistances "1bf1b94a213c6e33b539f2122a78cb26")
 
 

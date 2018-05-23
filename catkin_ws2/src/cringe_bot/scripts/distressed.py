@@ -43,7 +43,7 @@ def listener(args):
 class Distressed_publisher():
 	def __init__(self):
 		self.pub_ir = rospy.Publisher('ir', IRdata, queue_size=1)
-		self.pub = rospy.Publisher('ir_info', String, queue_size=1)
+		#self.pub = rospy.Publisher('ir_info', String, queue_size=1)
 
 	def publish_ir(self, ir):
 		self.pub_ir.publish(ir)

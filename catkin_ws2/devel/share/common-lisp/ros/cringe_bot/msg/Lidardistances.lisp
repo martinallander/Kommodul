@@ -37,6 +37,11 @@
     :initarg :turn_left
     :type cl:boolean
     :initform cl:nil)
+   (distressed
+    :reader distressed
+    :initarg :distressed
+    :type cl:boolean
+    :initform cl:nil)
    (minimum
     :reader minimum
     :initarg :minimum
@@ -92,6 +97,11 @@
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader cringe_bot-msg:turn_left-val is deprecated.  Use cringe_bot-msg:turn_left instead.")
   (turn_left m))
 
+(cl:ensure-generic-function 'distressed-val :lambda-list '(m))
+(cl:defmethod distressed-val ((m <Lidardistances>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader cringe_bot-msg:distressed-val is deprecated.  Use cringe_bot-msg:distressed instead.")
+  (distressed m))
+
 (cl:ensure-generic-function 'minimum-val :lambda-list '(m))
 (cl:defmethod minimum-val ((m <Lidardistances>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader cringe_bot-msg:minimum-val is deprecated.  Use cringe_bot-msg:minimum instead.")
@@ -114,6 +124,7 @@
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'left) 1 0)) ostream)
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'turn_right) 1 0)) ostream)
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'turn_left) 1 0)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'distressed) 1 0)) ostream)
   (cl:map cl:nil #'(cl:lambda (ele) (cl:let* ((signed ele) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 65536) signed)))
     (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 8) unsigned) ostream)
@@ -137,6 +148,7 @@
     (cl:setf (cl:slot-value msg 'left) (cl:not (cl:zerop (cl:read-byte istream))))
     (cl:setf (cl:slot-value msg 'turn_right) (cl:not (cl:zerop (cl:read-byte istream))))
     (cl:setf (cl:slot-value msg 'turn_left) (cl:not (cl:zerop (cl:read-byte istream))))
+    (cl:setf (cl:slot-value msg 'distressed) (cl:not (cl:zerop (cl:read-byte istream))))
   (cl:setf (cl:slot-value msg 'minimum) (cl:make-array 360))
   (cl:let ((vals (cl:slot-value msg 'minimum)))
     (cl:dotimes (i 360)
@@ -164,18 +176,19 @@
   "cringe_bot/Lidardistances")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<Lidardistances>)))
   "Returns md5sum for a message object of type '<Lidardistances>"
-  "029a944d8a38cab9394851815b26567b")
+  "1bf1b94a213c6e33b539f2122a78cb26")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'Lidardistances)))
   "Returns md5sum for a message object of type 'Lidardistances"
-  "029a944d8a38cab9394851815b26567b")
+  "1bf1b94a213c6e33b539f2122a78cb26")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<Lidardistances>)))
   "Returns full string definition for message of type '<Lidardistances>"
-  (cl:format cl:nil "bool forward~%bool backward~%bool right~%bool left~%bool turn_right~%bool turn_left~%int16[360] minimum~%float32 limit~%int16 angle~%~%"))
+  (cl:format cl:nil "bool forward~%bool backward~%bool right~%bool left~%bool turn_right~%bool turn_left~%bool distressed~%int16[360] minimum~%float32 limit~%int16 angle~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'Lidardistances)))
   "Returns full string definition for message of type 'Lidardistances"
-  (cl:format cl:nil "bool forward~%bool backward~%bool right~%bool left~%bool turn_right~%bool turn_left~%int16[360] minimum~%float32 limit~%int16 angle~%~%"))
+  (cl:format cl:nil "bool forward~%bool backward~%bool right~%bool left~%bool turn_right~%bool turn_left~%bool distressed~%int16[360] minimum~%float32 limit~%int16 angle~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <Lidardistances>))
   (cl:+ 0
+     1
      1
      1
      1
@@ -195,6 +208,7 @@
     (cl:cons ':left (left msg))
     (cl:cons ':turn_right (turn_right msg))
     (cl:cons ':turn_left (turn_left msg))
+    (cl:cons ':distressed (distressed msg))
     (cl:cons ':minimum (minimum msg))
     (cl:cons ':limit (limit msg))
     (cl:cons ':angle (angle msg))

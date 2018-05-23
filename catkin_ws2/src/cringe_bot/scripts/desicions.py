@@ -33,25 +33,20 @@ def set_params(param):
 	setting = settings.get("Parameters", param)
 	return setting
 
-def gpio_setup():
-	GPIO.setmode(GPIO.BCM)
-	GPIO.setwarnings(False)
-	GPIO.setup(4, GPIO.OUT)
-
 def callback(lidar, ai):
     ai.get_lidar(lidar)
 
 def callback_dist(irdata, ai):
     ai.get_distressed(irdata)
 
-def callback_gui(guidata, AI):
-	if gui.data in move_commands:
-		AI.publish(gui.data)
+def callback_gui(guidata, ai):
+	if guidata.data in move_commands and not ai.autonomous:
+		ai.publish(guidata.data)
 	elif guidata.data == "Autonom":
-		AI.autonomous = True
+		ai.autonomous = True
 		#AI.pubdist("Autonom")
 	elif guidata.data == "Manual":
-		AI.autonomous = False
+		ai.autonomous = False
 		#AI.pubdist("Manual")
 
 def closest(values):
@@ -85,6 +80,7 @@ def listener(AI):
 			break
 		if not AI.found:
 			AI.decide()
+		rate.sleep()
 	rospy.spin()
 
 class AI():
@@ -197,8 +193,6 @@ class AI():
 		command = ""
 		available_commands = self.available()
 		prefered_commands = self.prefered()
-		#if self.found:
-		#	[self.move_back()] + prefered_commands
 		if not len(self.queue) == 0 and self.prev == ROTRIGHT:
 			prefered_commands.insert(0, self.queue.pop(0))
 		for i in range(len(prefered_commands)):
@@ -207,9 +201,8 @@ class AI():
 				break
 		if self.autonomous:
 			self.publish(command)
-		self.moves_done.append(command)
+			self.prev = command
 		self.pubdist(str(available_commands))
-		self.prev = command
 
 	def inverse_move(self, move):
 		inverse = ""

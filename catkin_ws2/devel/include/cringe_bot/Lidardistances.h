@@ -30,6 +30,7 @@ struct Lidardistances_
     , left(false)
     , turn_right(false)
     , turn_left(false)
+    , distressed(false)
     , minimum()
     , limit(0.0)
     , angle(0)  {
@@ -42,6 +43,7 @@ struct Lidardistances_
     , left(false)
     , turn_right(false)
     , turn_left(false)
+    , distressed(false)
     , minimum()
     , limit(0.0)
     , angle(0)  {
@@ -68,6 +70,9 @@ struct Lidardistances_
 
    typedef uint8_t _turn_left_type;
   _turn_left_type turn_left;
+
+   typedef uint8_t _distressed_type;
+  _distressed_type distressed;
 
    typedef boost::array<int16_t, 360>  _minimum_type;
   _minimum_type minimum;
@@ -156,12 +161,12 @@ struct MD5Sum< ::cringe_bot::Lidardistances_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "029a944d8a38cab9394851815b26567b";
+    return "1bf1b94a213c6e33b539f2122a78cb26";
   }
 
   static const char* value(const ::cringe_bot::Lidardistances_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x029a944d8a38cab9ULL;
-  static const uint64_t static_value2 = 0x394851815b26567bULL;
+  static const uint64_t static_value1 = 0x1bf1b94a213c6e33ULL;
+  static const uint64_t static_value2 = 0xb539f2122a78cb26ULL;
 };
 
 template<class ContainerAllocator>
@@ -186,6 +191,7 @@ bool right\n\
 bool left\n\
 bool turn_right\n\
 bool turn_left\n\
+bool distressed\n\
 int16[360] minimum\n\
 float32 limit\n\
 int16 angle\n\
@@ -213,6 +219,7 @@ namespace serialization
       stream.next(m.left);
       stream.next(m.turn_right);
       stream.next(m.turn_left);
+      stream.next(m.distressed);
       stream.next(m.minimum);
       stream.next(m.limit);
       stream.next(m.angle);
@@ -246,6 +253,8 @@ struct Printer< ::cringe_bot::Lidardistances_<ContainerAllocator> >
     Printer<uint8_t>::stream(s, indent + "  ", v.turn_right);
     s << indent << "turn_left: ";
     Printer<uint8_t>::stream(s, indent + "  ", v.turn_left);
+    s << indent << "distressed: ";
+    Printer<uint8_t>::stream(s, indent + "  ", v.distressed);
     s << indent << "minimum[]" << std::endl;
     for (size_t i = 0; i < v.minimum.size(); ++i)
     {

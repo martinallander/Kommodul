@@ -11,6 +11,8 @@
           TURN_RIGHT
           TURN_LEFT-VAL
           TURN_LEFT
+          DISTRESSED-VAL
+          DISTRESSED
           MINIMUM-VAL
           MINIMUM
           LIMIT-VAL

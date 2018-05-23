@@ -24,6 +24,7 @@ class Lidardistances {
       this.left = null;
       this.turn_right = null;
       this.turn_left = null;
+      this.distressed = null;
       this.minimum = null;
       this.limit = null;
       this.angle = null;
@@ -65,6 +66,12 @@ class Lidardistances {
       else {
         this.turn_left = false;
       }
+      if (initObj.hasOwnProperty('distressed')) {
+        this.distressed = initObj.distressed
+      }
+      else {
+        this.distressed = false;
+      }
       if (initObj.hasOwnProperty('minimum')) {
         this.minimum = initObj.minimum
       }
@@ -100,6 +107,8 @@ class Lidardistances {
     bufferOffset = _serializer.bool(obj.turn_right, buffer, bufferOffset);
     // Serialize message field [turn_left]
     bufferOffset = _serializer.bool(obj.turn_left, buffer, bufferOffset);
+    // Serialize message field [distressed]
+    bufferOffset = _serializer.bool(obj.distressed, buffer, bufferOffset);
     // Check that the constant length array field [minimum] has the right length
     if (obj.minimum.length !== 360) {
       throw new Error('Unable to serialize array field minimum - length must be 360')
@@ -129,6 +138,8 @@ class Lidardistances {
     data.turn_right = _deserializer.bool(buffer, bufferOffset);
     // Deserialize message field [turn_left]
     data.turn_left = _deserializer.bool(buffer, bufferOffset);
+    // Deserialize message field [distressed]
+    data.distressed = _deserializer.bool(buffer, bufferOffset);
     // Deserialize message field [minimum]
     data.minimum = _arrayDeserializer.int16(buffer, bufferOffset, 360)
     // Deserialize message field [limit]
@@ -139,7 +150,7 @@ class Lidardistances {
   }
 
   static getMessageSize(object) {
-    return 732;
+    return 733;
   }
 
   static datatype() {
@@ -149,7 +160,7 @@ class Lidardistances {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '029a944d8a38cab9394851815b26567b';
+    return '1bf1b94a213c6e33b539f2122a78cb26';
   }
 
   static messageDefinition() {
@@ -161,9 +172,11 @@ class Lidardistances {
     bool left
     bool turn_right
     bool turn_left
+    bool distressed
     int16[360] minimum
     float32 limit
     int16 angle
+    
     `;
   }
 
@@ -213,6 +226,13 @@ class Lidardistances {
     }
     else {
       resolved.turn_left = false
+    }
+
+    if (msg.distressed !== undefined) {
+      resolved.distressed = msg.distressed;
+    }
+    else {
+      resolved.distressed = false
     }
 
     if (msg.minimum !== undefined) {

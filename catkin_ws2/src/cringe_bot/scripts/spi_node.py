@@ -28,7 +28,7 @@ def listener(spi_node):
 	pub_sensor = rospy.Publisher('sensor', Sensordata, queue_size=1)
 	pub_moves = rospy.Publisher('moves', String, queue_size=1)
 	rospy.Subscriber('spi_commands', String, callback, spi_node)
-	rate = rospy.Rate(4) # 30hz
+	rate = rospy.Rate(5) # 30hz
 	while not rospy.is_shutdown():
 		spi_node.perform_action()
 		last_move = spi_node.spi.publish_move()
