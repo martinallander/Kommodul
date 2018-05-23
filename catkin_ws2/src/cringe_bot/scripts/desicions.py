@@ -21,6 +21,9 @@ TURNLEFT = "turnleft"
 TURNRIGHT = "turnright"
 ROTRIGHT = "rotright"
 ROTLEFT = "rotleft"
+
+move_commands = [FORWARD, BACKWARD, TURNLEFT, TURNRIGHT, ROTRIGHT, ROTLEFT]
+
 pi = pigpio.pi()
 pi.set_mode(17, pigpio.OUTPUT)
 
@@ -42,7 +45,9 @@ def callback_dist(irdata, ai):
     ai.get_distressed(irdata)
 
 def callback_gui(guidata, AI):
-	if guidata.data == "Autonom":
+	if gui.data in move_commands:
+		AI.publish(gui.data)
+	elif guidata.data == "Autonom":
 		AI.autonomous = True
 		#AI.pubdist("Autonom")
 	elif guidata.data == "Manual":
